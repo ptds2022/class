@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Tools in Data Science</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Orso" />
+    <meta name="date" content="2021-11-29" />
+    <script src="lecture11_shiny2_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture11_shiny2_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programming Tools in Data Science
+## Lecture #11: advanced {shiny}
+### Samuel Orso
+### 29 November 2021
+
+---
+
+# Modularizing Shiny
+&lt;blockquote&gt;
+Modules are one of the most powerful tools for building shiny applications in a maintainable and sustainable manner.
+.right[&lt;cite&gt;Engineering Production-Grade Shiny Apps&lt;/cite&gt;]
+&lt;/blockquote&gt; 
+
+---
+# Motivations
+* When your code grows in complexity, it is convenient to use a *divide and conquer* strategy by writing small pieces of code into functions.
+* It makes the code more readable and small pieces are easier to inspect/fix.
+* It allows parts of the code to be reusable. A good rule of thumb is: "*if you copy and paste something more than twice, you should make a function*".
+
+---
+# Motivations
+* In Shiny, functions don't fully address the problem since IDs are global: each ID must be unique!
+* Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app (if you don't recall what a namespace is, see this [link](https://adv-r.hadley.nz/environments.html#namespaces)).
+
+---
+# Simple example
+
+```r
+# Shiny App
+library(shiny)
+
+ui &lt;- fluidPage(
+  selectInput("var", "Variable", names(mtcars)),
+  numericInput("bins", "bins", 10, min = 1),
+  plotOutput("hist")
+)
+server &lt;- function(input, output, session) {
+  data &lt;- reactive(mtcars[[input$var]])
+  output$hist &lt;- renderPlot({
+    hist(data(), breaks = input$bins, main = input$var)
+  }, res = 96)
+}
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+* As an app, one usually creates a pair of UI and server modules.
+
+---
+# UI module
+
+```r
+histogramUI &lt;- function(id) {
+  # This ns &lt;- NS structure creates a 
+  # "namespacing" function, that will 
+  # prefix all ids with a string
+* ns &lt;- NS(id)
+  tagList(
+    selectInput(ns("var"), "Variable", choices = names(mtcars)),
+    numericInput(ns("bins"), "bins", value = 10, min = 1),
+    plotOutput(ns("hist"))
+  )
+}
+```
+* The UI code is inside a function with `id` argument.
+* There are two new things: 
+  1. `ns &lt;- NS(id)` creates a *namespacing* function.
+  2. All `inputId` are now wrapped in `ns(inputId)`.
+* You return a `htmltools::tagList`, a `list()` of HTML tags, instead of a `fluidPage` for example. It's a fragment that could be combined with other fragments in the app.
+
+---
+# Server module
+
+```r
+histogramServer &lt;- function(id) {
+  moduleServer(id, function(input, output, session) {
+    data &lt;- reactive(mtcars[[input$var]])
+    output$hist &lt;- renderPlot({
+      hist(data(), breaks = input$bins, main = input$var)
+    }, res = 96)
+  })
+}
+```
+* The server code is inside the `moduleServer` function, itself inside a function with (at least) the `id` argument.
+* We have `moduleServer(id, module, session = getDefaultReactiveDomain())` where `module` is the *usual* server function.
+
+---
+# Back to the app
+
+```r
+# Main application
+ui &lt;- fluidPage(
+  histogramUI("hist1")
+)
+server &lt;- function(input, output, session) {
+  histogramServer("hist1")
+}
+# Run the application 
+shinyApp(ui, server) 
+```
+* Note that you need to use the same `id` in `histogramUI` and `histogramServer`.
+* The application looks much simpler, and you could imagine adding as many modules as you like. 
+
+---
+# Namespacing
+* For UI module, the namespacing is explicit with calls to `ns &lt;- NS(id)` and `ns(inputId)`.
+* For server module, the namespacing is implicit. Shiny automatically namespaces input and output following the same convention as UI module.
+* In the following example, the `input$bins` from the `sliderInput` is never used, even though it "appears" in the server module.
+
+```r
+# Recall server function has this line:
+...
+hist(data(), breaks = input$bins, main = input$var)
+...
+
+# Main app
+ui &lt;- fluidPage(
+  histogramUI("hist1"),
+  sliderInput("bins", "Another bins:",0,10,5)
+)
+server &lt;- function(input, output, session) {
+  histogramServer("hist1")
+}
+# Run the application 
+shinyApp(ui, server)
+```
+
+---
+# Communication between modules
+* Very often, you will need to share data among modules.
+* A common approach is to return a `reactive()` from a module, and pass it as an argument to another module. 
+
+---
+# Example
+
+```r
+# New server module
+*histogramServer &lt;- function(id, data, title = reactive("Histogram")) {
+  stopifnot(is.reactive(data))
+  moduleServer(id, function(input, output, session) {
+    output$hist &lt;- renderPlot({
+      hist(data(), breaks = input$bins, main = title())
+    }, res = 96)
+  })
+}
+
+ui &lt;- fluidPage(
+  histogramUI("hist1")
+)
+server &lt;- function(input, output, session) {
+* data &lt;- reactive(mtcars$mpg)
+  histogramServer("hist1", data)
+}
+# Run the application 
+shinyApp(ui, server)
+```
+
+.bottom[See &lt;https://mastering-shiny.org/scaling-modules.html#inputs-and-outputs&gt; for a more complete example]
+
+---
+# Communication between modules
+* This approach becomes hard to maintain with a lot of reactive function calls.
+* An alternative is the ["stratégie du petit r"](https://engineering-shiny.org/structuring-project.html#b.-the-strat%C3%A9gie-du-petit-r): a global `reactiveValues` list is created and passed to along modules.
+* Another alternative is the ["stratégie du grand R6"](https://engineering-shiny.org/structuring-project.html#c.-the-strat%C3%A9gie-du-grand-r6), which is similar, but uses [R6 object-oriented programming](https://adv-r.hadley.nz/r6.html).
+* See also [tidymodules](https://opensource.nibr.com/tidymodules/articles/tidymodules.html) based on R6 OOP.
+
+---
+# Structuring your application
+* It is highly recommended to structure an application as a package.
+* Benefits are multiple: structure, documentation, tests, deployment, workflow, check, ...
+
+---
+# `{golem}`
+&lt;img src="images/golem.png" width="2523" style="display: block; margin: auto;" /&gt;
+
+---
+# `{golem}`
+* A `{golem}` application is a R package.
+* Everything you know about package development can be applied to `{golem}`.
+* A `{golem}` app works better with Shiny modules.
+
+---
+# `{golem}` structure
+* A `{golem}` application is a R package, so you find the usual files and folders.
+* Create a `{golem}` application using `New project... &gt; Package for Shiny App using golem`.
+* `R/` contains several default files. This is where you create the different modules.
+* `dev/` contains a series of files that can be useful for the project development.
+* `inst/app/www/` contains all files made available to the application at run time (CSS, JavaScript,...).
+
+---
+# `golem-config`
+* `{golem}` uses [config](https://github.com/rstudio/config) to manage environment specific configuration values. 
+* There are two ways `{golem}` app are configured:
+  1. Runtime configuration using the `golem_opts` in `run_app()`. It is convenient for testing.
+  2. Backend configuration using the `inst/golem-config.yml` file. It is convenient for VCS and deployment.
+
+.bottom[Checkout golem [cheatsheet](https://thinkr.fr/golem_cheatsheet_v0.1.pdf)]
+
+---
+# Naming convention in `{golem}`
+&lt;blockquote&gt;
+Using a convention allows everyone to know where to look when &lt;b&gt;debugging&lt;/b&gt;, &lt;b&gt;refactoring&lt;/b&gt;, or &lt;b&gt;implementing new features&lt;/b&gt;.
+.right[&lt;cite&gt;Engineering Production-Grade Shiny Apps&lt;/cite&gt;]
+&lt;/blockquote&gt; 
+
+---
+# Refactoring
+
+A simple system with input and output
+&lt;img src="images/simple_system.png" width="640" height="160" style="display: block; margin: auto;" /&gt;
+
+A simple **refactored** system with input and output 
+&lt;img src="images/refactored_system.png" width="640" height="160" style="display: block; margin: auto;" /&gt;
+
+.bottom[
+Source: Lemaire, Maude. 2020. [*Refactoring at Scale*](https://learning.oreilly.com/library/view/refactoring-at-scale/9781492075523/)
+]
+
+---
+# Naming convention in `{golem}`
+* `app_*` (`app_ui.R`, `app_server.R`) contain the top-level functions defining user interface and server function.
+* `fct_*` contain general functions that can be used by several modules.
+* `mod_*` contain unique modules.
+* `utils_*` contain utilities: small helper functions.
+* `*_ui_*` and `*_server_*` refer to UI or server specific, e.g. `utils_ui.R` contains utilities specific for UI.
+
+.bottom[
+See for example the [`{hexmake}`](https://github.com/ColinFay/hexmake/tree/master/R) Shiny App.
+]
+
+---
+# Save development time with snippets
+&lt;img src="images/snippet_1.png" width="500" height="500" style="display: block; margin: auto;" /&gt;
+---
+# Save development time with snippets
+&lt;img src="images/snippet_2.png" width="750" height="500" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Save development time with `{shinysnippets}`
+* You can install `{shinysnippets}` from GitHub:
+
+```r
+remotes::install_github("Thinkr-open/shinysnippets")
+```
+* Then run:
+
+```r
+shinysnippets::add_snippets()
+```
+and confirm.
+
+&amp;nbsp;
+
+.bottom[
+See also [RStudio article](https://support.rstudio.com/hc/en-us/articles/204463668-Code-Snippets?version=2021.09.1%2B372&amp;mode=desktop)   
+]
+---
+
+&lt;img src="images/module_snippet.gif" style="display: block; margin: auto;" /&gt;
+
+---
+# Performance: identify the bottleck
+&lt;img src="images/bottleneck.png" width="600" height="300" style="display: block; margin: auto;" /&gt;
+
+
+&lt;blockquote&gt;
+This bottleneck is the very thing you should be optimizing: having faster code anywhere else except this bottleneck will not make your app faster: you will just make your app reach the bottleneck faster, but there will still be this part of your app that slows everything down.
+.right[&lt;cite&gt;Engineering Production-Grade Shiny Apps&lt;/cite&gt;]
+&lt;/blockquote&gt;
+
+---
+# Profiling Shiny App
+* A good way to profile R code is to use the [profvis](https://rstudio.github.io/profvis/) package.
+* For a Shiny App, you could use simply use it as follows:
+
+```r
+# Note the explicit call to runApp() here: this is important
+# as otherwise the app won't actually run.
+profvis::profvis(runApp(shinyApp(ui, server)))
+```
+
+---
+# Example
+
+```r
+library(profvis)
+
+f &lt;- function() {
+  pause(0.2)
+  g()
+  10
+}
+g &lt;- function() {
+  pause(0.1)
+  5
+}
+profvis::profvis(f())
+```
+&lt;img src="images/flame_graph.png" width="800" height="240" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Example
+
+```r
+library(shiny)
+ui &lt;- fluidPage(
+  actionButton("x", "Click on me"),
+  textOutput("y")
+)
+server &lt;- function(input, output, session) {
+  output$y &lt;- eventReactive(input$x, f())
+}
+profvis::profvis({runApp(shinyApp(ui, server))})
+```
+
+---
+&lt;img src="images/profiling_shiny.png" width="1777" style="display: block; margin: auto;" /&gt;
+
+---
+* Much more processes are involved and it becomes not so easy to read.
+* `f()` and `g()` calls are called by an event reactive handler.
+* The profiling is performed locally, so it does not necessarily reflected on how the typical user experience.
+* Nowadays, more than half of all the web traffic comes from smartphone.
+* See &lt;https://mastering-shiny.org/performance.html#profiling-a-shiny-app&gt; for more details
+* See [RStudio article](https://rstudio.github.io/profvis/examples.html#example-3---profiling-a-shiny-application) for other examples
+
+---
+# Profiling UI with Google Lighthouse
+&lt;img src="images/lighthouse-logo.svg" style="height:100px; width:100px; position:absolute; top:7%; right:20%;"/&gt;
+* [Google Lighthouse](https://developers.google.com/web/tools/lighthouse) allows to perform a profiling from the user's perspective via Google Chrome web browser.
+* To use this tool:
+  1. Open Chrome-based browser in incognito mode (so the experience is a neutral as possible).
+  2. Enter the Shiny App url.
+  3. Open the `Developer tools`.
+  4. Click on `Lighthouse`.
+  5. Click on `Generate report`.
+
+---
+&lt;img src="images/lighthouse_1.png" width="2555" /&gt;
+---
+&lt;img src="images/lighthouse_2.png" width="2549" /&gt;
+
+---
+# Key audit measures
+* You can use the report to enhance your application.
+* Performance: measure the time for rendering a page. Unfortunately, "opportunities" are not always possible to address as you depend on `Shiny`.
+* Accessibility: it relates to UI: some tests are performed to make sure the application is universally accessible (see Accessibility chapter [here](https://engineering-shiny.org/ux-matters.html#web-accessibility)).
+* Best Practices: it tests some misc best practices around web applications.
+* SEO (Search Engine Optimization): it tests how the application performs in terms of search engine.
+
+.bottom[
+Other sources:
+* &lt;https://web.dev/why-speed-matters/&gt;
+* &lt;https://web.dev/learn/#lighthouse&gt;
+* &lt;https://developer.mozilla.org/en-US/docs/Web/Performance&gt;
+]
+
+---
+# This lecture was prepared using
+* Chapters 3 to 5 and 14 of [Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/index.html)
+* Chapters 17 to 23 of [Mastering Shiny](https://mastering-shiny.org/index.html)
+* RStudio articles [Modularizing Shiny app code](https://shiny.rstudio.com/articles/modules.html)
+
+---
+# To go further
+* Checkout other Chapters of [Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/index.html) and [Mastering Shiny](https://mastering-shiny.org/index.html)
+* Refer to the [Golemverse](https://golemverse.org/)
+* Checkout [shinymodules](https://github.com/Novartis/tidymodules)
+* Become an expert of UI following [Outstanding User Interfaces with Shiny](https://unleash-shiny.rinterface.com/index.html)
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+&lt;a href="https://ptds.samorso.ch/"&gt;
+.white[&lt;svg viewBox="0 0 384 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z"&gt;&lt;/path&gt;&lt;/svg&gt; website]
+&lt;/a&gt;
+
+&lt;a href="https://github.com/ptds2021/"&gt;
+.white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
+&lt;/a&gt;
+]
+
+---
+# Exercise
+1. Create a `{golem}` application project.
+2. For the UI:   
+  a. a user should input a tibble,   
+  b. a user should select two columns from the columns names,   
+  c. a user should see a plot with the two selected columns as an output.   
+3. Write the UI and backend using shiny modules and respect the `{golem}` conventions.
+4. Use everything you know from package development (tests, documentation, check, ...).
+5. Profile your app with Google Lighthouse.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

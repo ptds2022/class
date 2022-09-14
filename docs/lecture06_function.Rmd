@@ -1,0 +1,626 @@
+---
+title: "Programming Tools in Data Science"
+subtitle: "Lecture #6: Function"
+author: "Samuel Orso"
+date: "18 & 25 October 2021"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+
+---
+# Function
+```{r,fig.align='center',echo=FALSE,out.height=400,out.width=600}
+knitr::include_graphics("images/lego-674354_1280.jpg")
+```
+
+---
+```{r,fig.align='center',echo=F}
+knitr::include_graphics("images/function.png")
+```
+
+---
+# Function components
+A function has three components:
+
+- **arguments**: the inputs the user gives to the function which will determine the value or type of output of a function;
+- **body**: the code lines containing the commands and operations which deliver the desired output;
+- **environment**: every R function is built within an environment of reference from which to source possible input values and/or other functions necessary for it to work.
+
+---
+# Function parts
+You can verify these components using:
+
+- `formals(fun)`: return a list of arguments for `fun`;
+- `body(fun)`: return the code lines from within `fun`;
+- `environment(fun)`: return a frame, i.e. a collection of named objects, where `fun` finds values associated with names. 
+
+---
+# Example
+```{r}
+my_div <- function (numerator, denominator) {
+  div <- numerator / denominator
+  return(div)
+}
+
+formals(my_div)
+body(my_div)
+environment(my_div)
+```
+
+---
+# Arguments
+How arguments can be passed to a function in `R`?
+
+* **positional matching**: arguments must be entered in the same order as defined in the function 
+```{r}
+my_div(1, 2)
+my_div(2, 1)
+```
+
+---
+# Arguments
+* **perfect matching**: `R` searches for the arguments matching the exact name
+```{r}
+my_div(numerator = 1, denominator = 2)
+my_div(denominator = 1, numerator = 2)
+```
+
+---
+# Arguments
+* **prefix matching**: `R` searches for the first letters matching the exact name
+```{r}
+my_div(n = 1, d = 2)
+my_div(d = 1, n = 2)
+```
+
+---
+# A note on assignment operators `=` `<-`
+
+* Both `=` `<-` can be used to assign a value to a name.
+* When used to assign function arguments, there is a major difference:
+```{r, error=TRUE}
+my_div(numerator = 2, denominator = 1)
+numerator
+my_div(numerator <- 2, denominator = 1)
+numerator
+```
+
+---
+# Body
+The body of a function is simply the set of instructions and (possible) other functions that use the arguments provided by the user and computes the desired output.
+
+<center>
+<iframe src="https://giphy.com/embed/3oEdv9Y8md1SwyOMYE" width="360" height="360" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/animation-mechanical-3oEdv9Y8md1SwyOMYE">via GIPHY</a></p>
+</center>
+
+---
+# Signalling conditions
+As a programmer, it is important to give meaningful indications to the user. There three types of signalling conditions:
+
+* **errors**: sever problem, indicated via `stop()`;
+* **warnings**: mild problem, indicated via `warning()`;
+* **messages**: informative, indicated via `message()`.
+
+---
+# Errors
+Errors are related to the intentions behind the program. The programmer should ensure that the function is used within the scope of the intention.
+```{r,error=TRUE}
+# Is it possible to divide two characters?
+my_div("numerator","denominator")
+```
+
+```{r,error=T}
+# new definition
+my_div <- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+  if(any(!is.numeric(numerator), !is.numeric(denominator))){ #<<
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  div <- numerator / denominator
+  return(div)
+}
+my_div("numerator","denominator")
+```
+
+---
+```{r,error=TRUE}
+# a matrix is still numeric, does it work?
+A <- matrix(1:9,ncol=3)
+B <- matrix(1:12,ncol=3)
+my_div(A,B)
+```
+
+At this point, the programmer has to decide whether arrays are allowed. If the answer is positive, then extra verification is necessary as the dimension must match. 
+
+```{r}
+# dimension for arrays
+dim(A)
+length(A)
+
+# what happens for a vector?
+a <- 1:3
+dim(a)
+length(a)
+```
+
+
+---
+```{r,error=T}
+# new definition
+my_div <- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+  if(any(!is.numeric(numerator), !is.numeric(denominator))){
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  # verify length match
+  if(length(numerator) != length(denominator)){ #<<
+    stop("`numerator` and `denominator` must have the same length")
+  }
+  # verify dimension match
+  if(length(dim(numerator)) != length(dim(denominator))){ #<<
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+  if(any(dim(numerator) != dim(denominator))){ #<<
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+  
+  div <- numerator / denominator
+  return(div)
+}
+my_div(A, B)
+
+A <- matrix(1:9,ncol=3)
+B <- matrix(10:18,ncol=3)
+my_div(A, B)
+```
+
+---
+# Warnings
+Suppose that when two arrays of different size but same dimensions are input, the programmer decide to return the division of a reduced form. The programmer should then warn the user.  
+
+---
+```{r,error=T}
+# new definition
+my_div <- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+  if(any(!is.numeric(numerator), !is.numeric(denominator))){
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  # verify dimension match
+  if(length(dim(numerator)) != length(dim(denominator))){
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+  
+  # verify length match
+  new_num <- numerator
+  new_den <- denominator
+  num_len <- length(numerator)
+  den_len <- length(denominator)
+  if(num_len != den_len){
+    # two cases
+    if(num_len < den_len){
+      new_den <- numerator # `new_den` has same dimension has `numerator`
+      new_den[seq_len(num_len)] <- denominator[seq_len(num_len)]
+      warning("Size of `denominator` is reduced to match `numerator`") #<<
+    } else {
+      new_num <- numerator # `new_num` has same dimension has `denominator`
+      new_num[seq_len(num_len)] <- numerator[seq_len(num_len)]
+      warning("Size of `numerator` is reduced to match `denominator`") #<<
+    }
+  }
+  
+  div <- new_num / new_den
+  return(div)
+}
+```
+
+---
+```{r,error=TRUE}
+A <- matrix(1:9,ncol=3)
+B <- matrix(1:30,ncol=3)
+A/B
+my_div(A, B)
+```
+
+---
+# Messages
+The programmer optionally can print informative message.
+```{r,error=T,eval=F}
+# new definition
+my_div <- function (numerator, denominator) {
+  ...
+  
+  message("Starting the division") #<<
+  
+  div <- new_num / new_den
+  return(div)
+}
+```
+
+```{r,echo=FALSE}
+my_div <- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+  if(any(!is.numeric(numerator), !is.numeric(denominator))){
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  # verify dimension match
+  if(length(dim(numerator)) != length(dim(denominator))){
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+  
+  # verify length match
+  new_num <- numerator
+  new_den <- denominator
+  num_len <- length(numerator)
+  den_len <- length(denominator)
+  if(num_len != den_len){
+    # two cases
+    if(num_len < den_len){
+      new_den <- numerator # `new_den` has same dimension has `numerator`
+      new_den[seq_len(num_len)] <- denominator[seq_len(num_len)]
+      warning("Size of `denominator` is reduced to match `numerator`")
+    } else {
+      new_num <- numerator # `new_num` has same dimension has `denominator`
+      new_num[seq_len(num_len)] <- numerator[seq_len(num_len)]
+      warning("Size of `numerator` is reduced to match `denominator`")
+    }
+  }
+  
+  message("Starting the division")
+  div <- new_num / new_den
+  return(div)
+}
+```
+```{r}
+my_div(A, B)
+```
+
+---
+# Lexical scoping
+Lexical scoping consists in how to find a value associated with a name. What do you think will be the output of the following command?
+```{r,eval=F}
+new_num <- 1
+new_den <- 2
+my_div(A, B)
+```
+
+---
+When looking for the value of a name, `R` follows some rules:
+
+* **dynamic lookup**: `R` looks for a name when the function is run, not when it is created.
+```{r,error=TRUE}
+f <- function() x * x
+f()
+x <- 10
+f()
+```
+
+* **name masking**: `R` looks for a name from the current environment, and if not supplied, to the parent environment and so on.
+```{r,error=TRUE}
+x <- 10
+f <- function(){
+  x <- 1
+  x * x
+} 
+f()
+```
+
+---
+# Environment
+It is important to understand environment to understand where `R` finds names. Environment is a collection of named objects.
+
+* Every name in an environment is unique
+* Every environment has a parent
+
+---
+Special environment:
+
+* **current**: this is where the code is currently running, usually the global environment.
+```{r}
+environment()
+```
+* **global**: this is your "workspace", where you interactively experiment some code in `R`
+```{r}
+globalenv()
+```
+* **empty**: every environment has a parent except the empty environment, which is empty
+```{r}
+emptyenv()
+```
+
+
+---
+* **execution**: it usually exists only during function calls.
+```{r}
+f <- function() print(environment())
+f()
+f()
+```
+
+* **package**: when you attach a package with `library(pkg)`, the package becomes a parent of the global environment.
+
+---
+When looking for a binding, `R` follows a path
+```{r}
+search()
+library(ggplot2)
+search()
+```
+
+Be careful, if two packages have the same name for a function, which one is going to be called? You can use the operator `pkg::name` to make sure you make the right call.
+
+---
+<blockquote>
+To understand computations in `R`, two slogans are helpful:
+
+<ul>
+<li>Everything that exists is an object.</li>
+<li>Everything that happens is a function call.</li>
+</ul>
+.right[— John Chambers]
+</blockquote>
+
+---
+# Special functions
+Everything that happens is a function call, really?
+```{r}
+1 + 2
+`+`(1,2)
+`+`
+```
+
+---
+Remarks:
+* The `+` is a `.Primitive` function, it is implemented in `C` and is particularly efficient.
+* `+` is an **infix** function: the name appears between two arguments. Other infix functions comprises `=`, `<-`, `+`, `-`, `*`, `/`, `!`, `<`, `%*%`, `&`, `|`,...
+* You can create your own infix functions using `%operator%` pattern (e.g. `%>%` `magrittr` pipe operator).
+* It is licit but bad practice to redefine already existing infix functions as they are not reserved words
+
+```{r}
+`+` <- function(x, y) 10 * x * y
+1 + 2
+environment(`+`)
+base::`+`(1,2)
+```
+
+---
+# Function composition
+Everything is an object, so a function is an object too right? So you could pass an object as an argument? Yes!
+```{r}
+A <- matrix(rnorm(9),nc=3)
+B <- matrix(rnorm(9),nc=3)
+C <- matrix(rnorm(9),nc=3)
+D <- matrix(rnorm(9),nc=3)
+
+my_div(my_div(A,B),my_div(C,D))
+```
+
+This is called **nesting**.
+
+---
+You can also create intermediate objects.
+```{r}
+AB <- my_div(A,B)
+CD <- my_div(C,D)
+my_div(AB,CD)
+```
+
+---
+or a final option is to use **piping** with for example `%>%` `magrittr` operator
+(which works only for one argument)
+```{r}
+library(magrittr)
+my_div(A,B) %>% my_div(CD)
+```
+
+---
+# Ready to continue?
+
+&nbsp;
+
+<center>
+<iframe src="https://giphy.com/embed/xT8qBvH1pAhtfSx52U" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/baby-sleepy-face-first-xT8qBvH1pAhtfSx52U">via GIPHY</a></p>
+</center>
+
+---
+# S3 OOP system
+* Object-oriented programming (OOP) is one of the most popular programming paradigm. 
+* The type of an object is a **class** and a function implemented for a specific class is a **method**.
+* It is mostly used for **polymorphism**: the function interface is separated from its implementation. In other words, the function behaves differently according to the class.
+* This is related to the idea of **encapsulation**: the object interface is separated from its internal structure. In other words, the user doesn't need to worry about details of an object. Encapsulation avoids spaghetti code (see [Toyota 2013 case](http://archive.wikiwix.com/cache/index2.php?url=https%3A%2F%2Fwww.usna.edu%2FAcResearch%2F_files%2Fdocuments%2FNASEC%2F2016%2FCYBER%2520-%2520Toyota%2520Unintended%2520Acceleration.pdf)).
+* `R` has several OOP systems: S3, S4, R6, ...
+* S3 OOP system is the first R OOP system, it is rather informal (easy to modify) and widespread.
+
+---
+# Example of polymorphism
+```{r}
+summary(cars$speed)
+summary(lm(cars$speed~cars$dist))
+```
+
+---
+What is happening?
+```{r}
+sloop::s3_dispatch(summary(cars$speed))
+sloop::s3_dispatch(summary(lm(cars$speed~cars$dist)))
+```
+
+* `*` indicates the method is defined;
+* `=>` indicates the method is used.
+
+```{r}
+class(cars$speed)
+class(lm(cars$speed~cars$dist))
+```
+
+---
+What is happening?
+```{r}
+summary
+head(summary.default)
+head(summary.lm)
+```
+
+---
+# `...`
+* Using `...` is a special argument which allows to pass any number of additional arguments.
+* You can catch it into a list:
+```{r}
+f <- function(...){list(...)}
+f(a=1, b=2)
+```
+* It is useful for example when defining a **generic** method.
+* The role of a generic is to **dispatch**: find the specific method for a **class**.
+
+---
+* A generic is easy to create
+```{r}
+my_new_generic <- function(x, ...) {
+  UseMethod("my_new_generic")
+}
+```
+* Then, you can create methods
+```{r}
+# default method
+my_new_generic.default <- function(x, ...){
+  print("this is default method")
+}
+# method for object of class `lm`
+my_new_generic.lm <- function(x, ...){
+  print("this is method for class `lm`")
+}
+```
+
+```{r}
+my_new_generic(cars$speed)
+my_new_generic(lm(cars$speed~cars$dist))
+```
+
+---
+* check the dispatch
+```{r}
+sloop::s3_dispatch(my_new_generic(cars$speed))
+sloop::s3_dispatch(my_new_generic(lm(cars$speed~cars$dist)))
+```
+* Why are there several output when running `sloop::s3_dispatch(my_new_generic(cars$speed))`?
+
+---
+* check the dispatch
+```{r}
+sloop::s3_dispatch(my_new_generic(cars$speed))
+sloop::s3_dispatch(my_new_generic(lm(cars$speed~cars$dist)))
+```
+* Why are there several output when running `sloop::s3_dispatch(my_new_generic(cars$speed))`?
+
+```{r}
+sloop::s3_class(cars$speed)
+```
+* `cars$speed` has class "numeric" and implicit class "double" (check `typeof(cars$speed)`).
+
+
+---
+# Inheritance
+* An object can have several classes like a child has parents and ancestors. For example:
+```{r}
+class(glm(cars$speed~cars$dist))
+```
+* If a method is not found for the 1st class, then `R` looks for the 2nd class and so on.
+```{r}
+sloop::s3_dispatch(summary(glm(cars$speed~cars$dist)))
+sloop::s3_dispatch(plot(glm(cars$speed~cars$dist)))
+```
+
+---
+# Create your own S3 class
+* S3 is rather informal and straightforward (be careful!)
+```{r}
+set.seed(123) # for reproducibility
+image <- matrix(rgamma(100, shape = 2), 10, 10)
+class(image) <- "pixel"
+```
+
+* `class` is a special attribute.
+```{r}
+attributes(image)
+```
+
+---
+* Alternatively, it is neater to create a S3 object using `structure`
+```{r}
+set.seed(123) # for reproducibility
+image <- structure(
+  matrix(rgamma(100, shape = 2), 10, 10),
+  class = "pixel"
+)
+```
+* There is no method yet for this class
+```{r,fig.align='center',fig.height=4,fig.width=4}
+plot(image)
+```
+
+---
+
+```{r}
+sloop::s3_dispatch(plot(image))
+plot
+```
+
+---
+* Generally, it is a bad practice to create methods for a generic you don't own.
+* But it is common for generics with `...` arguments such as `mean`, `sum`, `summary`, `plot`, `coefficients`, ...
+
+```{r}
+plot.pixel <- function (x, ...) {
+  heatmap(x, ...)
+}
+sloop::s3_dispatch(plot(image))
+```
+
+---
+* New plot for class `pixel`
+```{r,fig.align='center',fig.height=6,fig.width=6}
+plot(image)
+```
+
+---
+* Thanks to `...`, you can pass other arguments (be careful) (see for meaningful arguments `?heatmap`)
+
+```{r,fig.align='center',fig.height=6,fig.width=6}
+plot(image, col = cm.colors(256), xlab = "x axis", ylab = "y axis")
+```
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-functions.html)
+* More advanced remarks in [Advanced R](https://adv-r.hadley.nz/index.html), Chapters 6, 7 and 8 for functions, Chapters 12 to 16 for object-oriented programming.
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+<a href="https://ptds.samorso.ch/">
+.white[`r icons::fontawesome("file")` website]
+</a>
+
+<a href="https://github.com/ptds2021/">
+.white[`r icons::fontawesome("github")` GitHub]
+</a>
+]

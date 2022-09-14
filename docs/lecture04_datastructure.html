@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Tools in Data Science</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Orso" />
+    <meta name="date" content="2021-10-04" />
+    <script src="lecture04_datastructure_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture04_datastructure_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programming Tools in Data Science
+## Lecture #4: Data Structure
+### Samuel Orso
+### 4 October 2021
+
+---
+
+# Let's dive into `R` programming
+
+&lt;img src="images/r_programming.png" width="2263" style="display: block; margin: auto;" /&gt;
+
+---
+# Brief histo`R`y
+* `R` is a language and environment for statistical computing and graphics;
+* It was developed around 1995 by Ross Ihaka and Robert Gentleman at the University of Auckland, as an alternative implementation of the basic `S` language developed by John Chambers and colleagues;
+* Oldest release (available) is version 0.49 (1997-04-23)
+
+&lt;img src="images/extending_r.png" width="267" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Main featu`R`es
+* Much code written for `S` runs unaltered under `R`;
+* `R` provides a variety of statistical and graphical techniques;
+* `R` is popular for data science (in competition with Python);
+* `R` is open-source;
+* `R` is an interpreted language;
+* `R` is highly extensible via packages (18312 available on CRAN); 
+* `R` can be interfaced with other languages (C++, Fortran, ...).
+
+---
+# `R` is an interpreted language
+&lt;img src="images/cartoon_programming.png" width="551" style="display: block; margin: auto;" /&gt;
+
+---
+# Compiled program
+
+- Program is translated into native machine instruction (compilation)
+
+&lt;img src="images/compiled.png" width="750" height="111" style="display: block; margin: auto;" /&gt;
+
+&amp;nbsp;
+
+&amp;nbsp;
+
+&amp;nbsp;
+
+&lt;img src="images/compiled_pl.png" width="750" height="117" style="display: block; margin: auto;" /&gt;
+
+---
+# Interpreted program
+
+- Program is translated into another code (bytecode). An interpreter then performs the required actions.
+
+&lt;img src="images/interpreted.png" width="750" height="111" style="display: block; margin: auto;" /&gt;
+
+&amp;nbsp;
+
+&amp;nbsp;
+
+&amp;nbsp;
+
+&lt;img src="images/interpreted_pl.png" width="750" height="117" style="display: block; margin: auto;" /&gt;
+
+---
+# `R` interfaces to other languages
+`R` is basically written in `C` and `Fortran`. Available interfaces to other languages comprise:
+- `C` via `.Call()` function
+- `Fortran` via `.Fortran()` function
+- `C++` via the `Rcpp` package
+- `Python` via `reticulate`, `rPython`, `rJython` or `XRPython`
+- `Julia` via `XRJulia`
+- `JavaScript` via `V8`
+- `Excel`, `JSON`, `SQL`, `Perl`, ...
+
+
+See Chambers, (2017) for a comprehensive discussion on interfacing `R`.
+
+---
+# Example: linear regression
+How does `R` fit a linear regression? 
+
+
+```r
+fit &lt;- lm(y ~ x)
+```
+
+first layer: `R` function `lm`
+
+```r
+lm &lt;- function(formula, ...){
+  ...
+  y &lt;- model.response(mf, "numeric")
+  ...
+  x &lt;- model.matrix(mt, mf, contrasts)
+  ...
+* lm.fit(x, y, ...)
+  ...
+}
+```
+
+---
+# Example: linear regression
+How does `R` fit a linear regression?
+
+second layer: `R` function `lm.fit`
+
+```r
+lm.fit &lt;- function(x, y, ...){
+  ...
+* .Call(C_Cdqrls, x, y, tol, FALSE)
+  ...
+}
+```
+
+third layer: `C` function `Cdqrls`
+
+```r
+SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
+```
+
+`SEXP` is the datatype for a generic `R` object
+
+Source: excellent post [A Deep Dive Into How R Fits a Linear Model](https://madrury.github.io/jekyll/update/statistics/2016/07/20/lm-in-R.html), `Cdqrls` [source code](https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c)
+
+---
+# Integrated development environment
+
+&lt;img src="images/rstudio2.png" width="2377" style="display: block; margin: auto;" /&gt;
+
+---
+# Let's get started with `R` programming
+&lt;center&gt;
+&lt;iframe src="https://giphy.com/embed/3oKIPnAiaMCws8nOsE" width="457" height="480" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/cat-kitten-computer-3oKIPnAiaMCws8nOsE"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
+&lt;/center&gt;
+
+---
+# Data structures
+&lt;img src="images/lego-3388163_1280.png" width="1707" style="display: block; margin: auto;" /&gt;
+
+---
+# Primary types
+
+- **Double** (or real): these are used to store real numbers. Examples: -4, 12.4532, 6.
+- **Integer**: followed by `L`; examples: 2L, 12L.
+- **Logical** (or boolean); written in full `TRUE`, `FALSE`, or in short `T`, `F`.
+- **Character** (or strings); examples: `"a"`, `"Bonjour"`.
+- (**Complex** (complex number))
+
+---
+# Reserved words
+* **Missing values** `NA` (Not Available) can have primary types:  `NA_real_`, `NA_integer_`, `NA` (logical by default), `NA_complex_`, `NA_character_`.
+* For real and complex numbers, `R` has also `Inf` for infinity and `NaN` (Not a Number).
+* `NULL` for a null object.
+* builtin functions (seen later)
+
+---
+# `typeof`
+typeof determines the (`R` internal) type or storage mode of any object
+
+
+```r
+typeof(2)
+```
+
+```
+## [1] "double"
+```
+
+
+```r
+typeof("a")
+```
+
+```
+## [1] "character"
+```
+
+
+```r
+typeof(NA)
+```
+
+```
+## [1] "logical"
+```
+
+
+```r
+typeof(Inf)
+```
+
+```
+## [1] "double"
+```
+
+
+---
+# `is.type` primitive functions
+* `is.type` allows to test for a type
+* There are `is.double`, `is.integer`, `is.numeric`, `is.logical`, `is.character`, `is.complex`, `is.na`, `is.nan`, `is.finite`, `is.infinite`, `is.null`, ...
+
+```r
+is.double(2L)
+```
+
+```
+## [1] FALSE
+```
+
+```r
+is.double(2)
+```
+
+```
+## [1] TRUE
+```
+
+```r
+is.numeric(2)
+```
+
+```
+## [1] TRUE
+```
+
+---
+# `as.type` primitive functions
+* `as.type` allows to coerce to a type
+* There are `as.double`, `as.integer`, `as.numeric`, `as.logical`, `as.character`, `as.complex`, `as.na`, `as.nan`, `as.finite`, `as.infinite`, `as.null`, ...
+
+
+```r
+typeof(2L)
+```
+
+```
+## [1] "integer"
+```
+
+```r
+typeof(as.double(2L))
+```
+
+```
+## [1] "double"
+```
+
+---
+# Data structures
+* A data structure can be **homogenous** (accept only one primary type) or **heterogenous** (accept multiple primary types).
+
+| Dimension | Homogenous | Heterogeneous |   
+| --- | --- | --- |   
+| 1 | Vector | List |   
+| 2 | Matrix | Data Frame |   
+| n | Array | |    
+
+---
+# Example
+| Name | Date of Birth | Place of Birth | Place of Residence | ATP Ranking | Prize Money | Win Percentage | Grand Slam Wins | Pro Since |   
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |   
+| Novak Djokovic | 22 May 1987 | Belgrade, Serbia | Monte Carlo, Monaco | 1 | 135,259,120 | 82.7 | 16 | 2003 |   
+| Rafael Nadal | 3 June 1986 | Manacor, Spain | Manacor, Spain | 2 | 115,178,858 | 83.1 | 19 | 2001 |   
+| Roger Federer | 8 August 1981 | Basel, Switzerland | Wollerau, Switzerland | 3 | 126,840,700 | 82.2 | 20 | 1998 |   
+| Daniil Medvedev | 11 February 1996 | Moscow, Russia | Monte Carlo, Monaco | 4 | 8,171,483 | 63.6 | 0 | 2014 |   
+| Dominic Thiem | 3 September 1993 | Wiener Neustadt, Austria | Lichtenwörth, Austria | 5 | 18,588,662 | 64.3 | 0 | 2011 |  
+
+---
+# Vector
+A vector has three important properties:
+
+- The **Type** of objects contained in the vector (`typeof`)
+- The **Length** of a vector indicates the number of elements in the vector. This information can be obtained using the function `length()`.
+- **Attributes** are metadata attached to a vector. The functions `attr()` and `attributes()` can be used to store and retrieve attributes.  
+
+---
+# Creating vectors with `c()`
+* `c()` is a generic function that combines arguments separated by `,` to form a vector.
+
+
+```r
+c(1, 2, 8, 10)
+```
+
+```
+## [1]  1  2  8 10
+```
+
+* You can assign a value to a name via the `&lt;-` operator
+
+```r
+grand_slam_win &lt;- c(16, 19, 20, 0, 0)
+grand_slam_win
+```
+
+```
+## [1] 16 19 20  0  0
+```
+
+
+```r
+typeof(grand_slam_win)
+```
+
+```
+## [1] "double"
+```
+
+---
+# Creating a vector with `vector()`
+* `vector` produces a vector of given length and mode (primary type)
+
+
+```r
+grand_slam_win &lt;- vector(mode = "integer", length = 5)
+grand_slam_win
+```
+
+```
+## [1] 0 0 0 0 0
+```
+
+---
+# Subsetting
+There are four main ways to subset a vector:
+* **Positive Index**: *access* or *subset* the `\(i\)`-th element of a vector by simply using `grand_slam_win[i]` where `\(i\)` is a positive number between 1 and the length of the vector.
+
+
+```r
+grand_slam_win &lt;- vector(mode = "integer", length = 5)
+grand_slam_win[1] &lt;- 16
+grand_slam_win[2] &lt;- 19
+grand_slam_win[3] &lt;- 20
+grand_slam_win
+```
+
+```
+## [1] 16 19 20  0  0
+```
+
+or equivalently
+
+
+```r
+grand_slam_win &lt;- vector(mode = "integer", length = 5)
+grand_slam_win[1:3] &lt;- c(16, 19, 20)
+grand_slam_win
+```
+
+```
+## [1] 16 19 20  0  0
+```
+
+---
+# Subsetting
+* **Negative Index**: *remove* elements in a vector using negative indices.
+* **Logical Indices**: give a logical vector of same length with `TRUE` to subset the element and `FALSE` otherwise.
+
+```r
+grand_slam_win &lt;- vector(mode = "integer", length = 5)
+grand_slam_win[c(TRUE, TRUE, TRUE, FALSE, FALSE)] &lt;- c(16, 19, 20)
+grand_slam_win
+```
+
+```
+## [1] 16 19 20  0  0
+```
+* **Names Index**: use names (or labels) instead of positive numbers.
+
+---
+# Coercion for homogenous data structure
+* A vector has a homogeneous data structure meaning that it can only contain a single primary type.
+* If multiple primary types is provided, then the following coercion rule applies:
+
+`\begin{equation*}
+ \text{logical} &lt; \text{integer} &lt; \text{double} &lt; \text{character}
+\end{equation*}`
+
+
+```r
+# Logical + double
+(mix_logic_int &lt;- c(TRUE, 12, 0.5))
+```
+
+```
+## [1]  1.0 12.0  0.5
+```
+
+```r
+typeof(mix_logic_int)
+```
+
+```
+## [1] "double"
+```
+
+---
+# Attributes
+* Attributes are used to store metadata on the object of interest.
+* Individual attributes can be accessed and set via `attr()`
+
+```r
+attr(grand_slam_win, "date") &lt;- "09-30-2019"
+attr(grand_slam_win, "type") &lt;- "Men, Singles"
+```
+* Attributes can be accessed and set all at once with `attributes` and `structure`
+
+```r
+attributes(grand_slam_win)
+```
+
+```
+## $date
+## [1] "09-30-2019"
+## 
+## $type
+## [1] "Men, Singles"
+```
+
+---
+# Adding labels
+* You can add labels to a vector using `names`
+
+```r
+names(grand_slam_win) &lt;- c("Novak Djokovic", "Rafael Nadal", "Roger Federer", "Daniil Medvedev", "Dominic Thiem")
+attributes(grand_slam_win)
+```
+
+```
+## $date
+## [1] "09-30-2019"
+## 
+## $type
+## [1] "Men, Singles"
+## 
+## $names
+## [1] "Novak Djokovic"  "Rafael Nadal"    "Roger Federer"   "Daniil Medvedev"
+## [5] "Dominic Thiem"
+```
+* Avoid using `attr(grand_slam_win, "names")` as it is more error-prone
+* You can unname using `unname(grand_slam_win)` or `names(grand_slam_win) &lt;- NULL`
+
+---
+# Working with dates
+* `as.Date()` function converts character strings into dates. The typical syntax is of the form:
+
+
+```r
+as.Date(&lt;vector of dates&gt;, format = &lt;your format&gt;)
+```
+
+For example
+
+```r
+(players_dob &lt;- as.Date(c("22 May 1987", "3 Jun 1986", "8 Aug 1981", 
+                         "11 Feb 1996", "3 Sep 1993"), 
+                       format = "%d %b %Y"))
+```
+
+```
+## [1] "1987-05-22" "1986-06-03" "1981-08-08" "1996-02-11" "1993-09-03"
+```
+
+---
+# Useful Functions with Vectors
+
+* Common function for vectors are
+`length()` `sum()` `mean()` `order()` and `sort()` 
+
+
+```r
+length(grand_slam_win)
+```
+
+```
+## [1] 5
+```
+
+```r
+sum(grand_slam_win)
+```
+
+```
+## [1] 55
+```
+
+```r
+mean(grand_slam_win)
+```
+
+```
+## [1] 11
+```
+
+---
+
+```r
+order(grand_slam_win)
+```
+
+```
+## [1] 4 5 1 2 3
+```
+
+```r
+sort(grand_slam_win)
+```
+
+```
+## Daniil Medvedev   Dominic Thiem  Novak Djokovic    Rafael Nadal   Roger Federer 
+##               0               0              16              19              20
+```
+
+---
+# Creating sequences
+
+Common ways to create sequences:
+
+- **`from:to`**: This method is quite intuitive and very compact. For example:
+
+
+```r
+1:3
+```
+
+```
+## [1] 1 2 3
+```
+
+```r
+(x &lt;- 3:1)
+```
+
+```
+## [1] 3 2 1
+```
+
+```r
+(y &lt;- -1:-4)
+```
+
+```
+## [1] -1 -2 -3 -4
+```
+
+---
+
+- **`seq_len(n)`**: This function provides a simple way to generate a sequence from 1 to an arbitrary number `n`. Few examples:
+
+
+```r
+n &lt;- 3
+1:n
+```
+
+```
+## [1] 1 2 3
+```
+
+```r
+seq_len(n)
+```
+
+```
+## [1] 1 2 3
+```
+
+```r
+n &lt;- 0
+1:n
+```
+
+```
+## [1] 1 0
+```
+
+```r
+seq_len(n)
+```
+
+```
+## integer(0)
+```
+
+---
+- **`seq(a, b, by/length.out = d)`**: This function can be used to create more "complex" sequences. It can either be used to create a sequence from `a` to `b` by increments of `d` (using the option `by`) or of a total length of `d` (using the option `length.out`). 
+
+
+```r
+(x &lt;- seq(1, 2.8, by = 0.4))
+```
+
+```
+## [1] 1.0 1.4 1.8 2.2 2.6
+```
+
+```r
+(y &lt;- seq(1, 2.8, length.out = 6))
+```
+
+```
+## [1] 1.00 1.36 1.72 2.08 2.44 2.80
+```
+
+---
+- **`rep()`**: create vectors with repeated values or sequences, for example:
+
+
+```r
+rep(c(1,2), times = 3, each = 1)
+```
+
+```
+## [1] 1 2 1 2 1 2
+```
+
+```r
+rep(c(1,2), times = 1, each = 3)
+```
+
+```
+## [1] 1 1 1 2 2 2
+```
+
+```r
+rep(c(1,2), times = 2, each = 2)
+```
+
+```
+## [1] 1 1 2 2 1 1 2 2
+```
+
+---
+# Matrix
+&lt;center&gt;
+&lt;iframe src="https://giphy.com/embed/sULKEgDMX8LcI" width="480" height="225" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/sci-fi-matrix-cyberpunk-sULKEgDMX8LcI"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;&lt;/center&gt;
+
+---
+# Matrix
+
+* Matrix is a common data structure in `R`. It has two dimensions and stores homogeneous primary types.
+* The `matrix()` function can be used to create a matrix from a vector:
+
+
+```r
+(M &lt;- matrix(1:12, ncol = 4,  nrow = 3))
+```
+
+```
+##      [,1] [,2] [,3] [,4]
+## [1,]    1    4    7   10
+## [2,]    2    5    8   11
+## [3,]    3    6    9   12
+```
+
+* Several vectors can be combined by row `rbind` or column `cbind`.
+* Names can be assigned by column `colnames` and by row `rownames`.
+* Subsetting is similar to vector `M[rows, cols]`
+
+---
+# Common matrix operations
+* Verify is `M` is a matrix: `is.matrix(M)`
+* Return the dimensions of `M`: `dim(M)` or `nrow(M)` and `ncol(M)`
+* Matrix transpose: `t(M)`
+* Elementwise multiplication (assume correct dimension): `A * B`
+* Matrix multiplication (assume correct dimension): `A %*% B`
+* Matrix inverse (assume correct dimension): `solve(M)`
+* col/row mean and sum: `colMeans(M), rowMeans(M), colSums(M), rowSums(M)`
+* Extract diagonal element: `diag(M)`
+* Set diagonal element: `diag(M) &lt;- c(...)`
+
+---
+# List
+* A list is a flexible and common **heterogeneous** data structure (contains different object types).
+
+
+```r
+# List elements
+num_vec &lt;- c(188, 140)
+char_vec &lt;- c("Height", "Weight", "Length")
+logic_vec &lt;- rep(TRUE, 8)
+my_mat &lt;- matrix(seq_len(10), nrow = 2, ncol = 5)
+
+# List initialization 
+(my_list &lt;- list(num_vec, char_vec, logic_vec, my_mat))
+```
+
+```
+## [[1]]
+## [1] 188 140
+## 
+## [[2]]
+## [1] "Height" "Weight" "Length"
+## 
+## [[3]]
+## [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+## 
+## [[4]]
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    1    3    5    7    9
+## [2,]    2    4    6    8   10
+```
+
+---
+It is possible to add named labels to the elements of your list. For example:
+
+
+```r
+# List initialization with custom names 
+(my_list &lt;- list(number = num_vec, character = char_vec, 
+                 logic = logic_vec, matrix = my_mat))
+```
+
+```
+## $number
+## [1] 188 140
+## 
+## $character
+## [1] "Height" "Weight" "Length"
+## 
+## $logic
+## [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+## 
+## $matrix
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    1    3    5    7    9
+## [2,]    2    4    6    8   10
+```
+
+---
+# Subsetting
+Subsetting is very similar to what we have already discussed. Indeed, we have
+
+
+```r
+# Extract the first and third element 
+my_list[c(1, 3)]
+```
+
+```
+## $number
+## [1] 188 140
+## 
+## $logic
+## [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+```
+
+```r
+# Compare these two subsets  
+my_list[1]
+```
+
+```
+## $number
+## [1] 188 140
+```
+
+```r
+my_list[[1]]
+```
+
+```
+## [1] 188 140
+```
+
+---
+# Subsetting
+
+```r
+# Using labels to subset 
+my_list$number
+```
+
+```
+## [1] 188 140
+```
+
+```r
+my_list$matrix
+```
+
+```
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    1    3    5    7    9
+## [2,]    2    4    6    8   10
+```
+
+```r
+my_list$matrix[,3] # Extract third column of matrix 
+```
+
+```
+## [1] 5 6
+```
+
+---
+# Single `[` or double `[[`?
+* Single `[` keeps the `list` class
+
+```r
+# type of object 
+typeof(my_list[1])
+```
+
+```
+## [1] "list"
+```
+
+* Double `[[` simplifies to the class of the element
+
+```r
+is.matrix(my_list[4])
+```
+
+```
+## [1] FALSE
+```
+
+```r
+is.matrix(my_list[[4]])
+```
+
+```
+## [1] TRUE
+```
+
+---
+# Dataframe
+* A data frame is a **heterogeneous** data structure used for storing data tables.
+
+
+```r
+### Creation
+players &lt;- c("Novak Djokovic", "Rafael Nadal", "Roger Federer",
+             "Daniil Medvedev", "Dominic Thiem")
+grand_slam_win &lt;- c(16, 19, 20, 0, 0) 
+date_of_birth &lt;- c("22 May 1987", "3 June 1986", "8 August 1981",
+                   "11 February 1996", "3 September 1993")
+tennis &lt;- data.frame(date_of_birth, grand_slam_win)
+dimnames(tennis)[[1]] &lt;- players
+tennis
+```
+
+```
+##                    date_of_birth grand_slam_win
+## Novak Djokovic       22 May 1987             16
+## Rafael Nadal         3 June 1986             19
+## Roger Federer      8 August 1981             20
+## Daniil Medvedev 11 February 1996              0
+## Dominic Thiem   3 September 1993              0
+```
+
+---
+# Dataframe
+* Each column has its own type. We can check if we have achieved our goal by using:
+
+
+```r
+is.data.frame(tennis)
+```
+
+```
+## [1] TRUE
+```
+
+* We can also verify the structure
+
+```r
+str(tennis)
+```
+
+```
+## 'data.frame':	5 obs. of  2 variables:
+##  $ date_of_birth : chr  "22 May 1987" "3 June 1986" "8 August 1981" "11 February 1996" ...
+##  $ grand_slam_win: num  16 19 20 0 0
+```
+
+---
+# Combination
+
+* Data frames can be combined using `cbind()` - column bind and `rbind()` - row bind:
+
+
+```r
+height &lt;- c(1.88, 1.85, 1.85, 1.98, 1.85)
+hand &lt;- c("R","L","R","R","R")
+
+(tennis &lt;- cbind(tennis, data.frame(height, hand)))
+```
+
+```
+##                    date_of_birth grand_slam_win height hand
+## Novak Djokovic       22 May 1987             16   1.88    R
+## Rafael Nadal         3 June 1986             19   1.85    L
+## Roger Federer      8 August 1981             20   1.85    R
+## Daniil Medvedev 11 February 1996              0   1.98    R
+## Dominic Thiem   3 September 1993              0   1.85    R
+```
+
+---
+# Subsetting
+
+* Data frame can be subset like a matrix or like a list.
+
+```r
+# There are two ways to select columns from a data frame
+# Like a list:
+tennis[c("height", "date_of_birth")]
+```
+
+```
+##                 height    date_of_birth
+## Novak Djokovic    1.88      22 May 1987
+## Rafael Nadal      1.85      3 June 1986
+## Roger Federer     1.85    8 August 1981
+## Daniil Medvedev   1.98 11 February 1996
+## Dominic Thiem     1.85 3 September 1993
+```
+
+```r
+# Like a matrix
+tennis[, c("height", "date_of_birth")]
+```
+
+```
+##                 height    date_of_birth
+## Novak Djokovic    1.88      22 May 1987
+## Rafael Nadal      1.85      3 June 1986
+## Roger Federer     1.85    8 August 1981
+## Daniil Medvedev   1.98 11 February 1996
+## Dominic Thiem     1.85 3 September 1993
+```
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-data.html)
+* More advanced remarks in [Advanced R](https://adv-r.hadley.nz/index.html), Chapters 2, 3 and 4.
+* Discover about Tibbles in [R for Data Science](https://r4ds.had.co.nz/tibbles.html)
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+&lt;a href="https://ptds.samorso.ch/"&gt;
+.white[&lt;svg viewBox="0 0 384 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z"&gt;&lt;/path&gt;&lt;/svg&gt; website]
+&lt;/a&gt;
+
+&lt;a href="https://github.com/ptds2021/"&gt;
+.white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
+&lt;/a&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

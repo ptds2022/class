@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Tools in Data Science</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Orso" />
+    <meta name="date" content="2021-10-11" />
+    <script src="lecture05_controlstructure_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture05_controlstructure_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programming Tools in Data Science
+## Lecture #5: Control Structure
+### Samuel Orso
+### 11 October 2021
+
+---
+
+# Control structures
+&lt;img src="images/lego-674373_1280.jpg" width="733" style="display: block; margin: auto;" /&gt;
+
+---
+# Control the flow
+We distinguish two types of control structures :
+
+* **Choices**: determine whether a given condition is satisfied and select an appropriate response;
+* **Loops**: repeat a block of code multiple times.
+
+---
+# Choices
+
+&lt;center&gt;
+&lt;iframe src="https://giphy.com/embed/MfT85aUkWLt4DkDZfu" width="480" height="480" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/FiaOruene-october-september-libra-MfT85aUkWLt4DkDZfu"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
+&lt;/center&gt;
+
+---
+# Logical operators (scalars)
+
+| Command     | Description                |   Example                           |    Result                             |
+|-------------|----------------------------|-------------------------------------|---------------------------------------|
+| x `&gt;` y     | x greater than y           | `4 &gt; 3`                             | TRUE                             |
+| x `&gt;=` y    | x greater or equals to y   | `1 &gt;= 1`                            | TRUE                            |
+| x `&lt;` y     | x less than y              | `12 &lt; 20`                 | TRUE                 |
+| x `&lt;=` y    | x less than or equals to y | `12 &lt;= 1`                           | FALSE                           |
+| x `==` y    | x equal to y               | `1 == 2`                 | FALSE                 |
+| x `!=` y    | x not equal to y           | `F != T`                 | TRUE          |
+| `!`x        | Not x                      | `!(2 &gt; 1)`               | FALSE               |
+| x &amp;vert;&amp;vert; y    | x or y    | `(1 &gt; 1)` &amp;vert;&amp;vert; `(2 &lt; 3)`                | TRUE                |
+| x `&amp;&amp;` y    | x and y   | `TRUE &amp;&amp; TRUE`                      | TRUE                      |
+
+---
+# Logical operators (vector/matrix, elementwise)
+
+* logical operators `&gt;`,`&lt;`,`&gt;=`,`&lt;=`,`==`,`!=`,`!` works for vector matrix (elementwise)
+* Careful between `&amp;&amp;` vs `&amp;`, `||` vs `|`
+
+| Command     | Description                |   Example                           |    Result                             |
+|-------------|----------------------------|-------------------------------------|---------------------------------------|
+| x &amp;vert; y     | x or y        | `c(1 &gt; 1, F)` &amp;vert; `c(T, 2 &lt; 3)`        | TRUE, TRUE        |
+| x `&amp;` y     | x and y       | `c(TRUE, T) &amp; c(TRUE, F)`           | TRUE, FALSE           |
+| xor(x,y)    | test if only one is TRUE   | `xor(TRUE, TRUE)`                   | FALSE                   |
+| `all`(x)    | test if all are TRUE       |  `all(c(T, F, F))`                  | FALSE                   |
+| `any`(x)    | test if one or more is TRUE|  `any(c(T, F, F))`                  | TRUE                   |
+
+* What does `c(T,F) | c(T,F)` and `c(T,F) || c(T,F)` returns? How do you think `||` works with vectors?
+
+---
+# Selection operators 
+Selection operators govern the flow of code.
+
+&lt;img src="images/if_statement.png" width="600" height="315" style="display: block; margin: auto;" /&gt;
+
+---
+# If statement
+
+* `if` statement tells `R` to compute a block of code when a condition is met
+* `if` is a reserved word
+* The condition in `()` should be either true or false
+* The block of code is in `{}`
+
+
+```r
+*if (&lt;this is TRUE&gt;){
+  &lt;do that&gt;
+}
+```
+
+* Note that for a short block of code, `{}` can be omitted to gain space (but to lose readability!)
+
+
+```r
+*if (&lt;this is TRUE&gt;) &lt;do that&gt;
+```
+
+---
+&lt;img src="images/if.png" width="4197" style="display: block; margin: auto;" /&gt;
+
+---
+
+```r
+x &lt;- -4
+
+*if (x &lt; 0){
+  x &lt;- -x
+}
+
+*if (x %% 2 == 0){
+  print(paste(x, "is an even number"))
+}
+```
+
+```
+## [1] "4 is an even number"
+```
+
+Remarks:
+* `%%` is the [modulo operator](https://en.wikipedia.org/wiki/Modulo_operation) (returns the remainder of a division)
+* `paste` concatenate vectors after converting to character.
+* `print` is a printing method in `R`
+* As an alternative, you can use `cat` as shown below
+
+
+```r
+*if (x %% 2 == 0){
+  cat(x, "is an even number\n")
+}
+```
+
+```
+## 4 is an even number
+```
+
+---
+# If/else statement
+Often we want to tell `R` what to do when a condition is `TRUE` and also what to do when it is `FALSE`. We can write
+
+
+```r
+*if (condition){
+  block A
+}
+
+*if (!condition){
+  block B
+}
+```
+
+The more compact notation is preferred:
+
+```r
+*if (condition){
+  block A
+*}else{
+  block B
+}
+```
+---
+&lt;img src="images/ifelse.png" width="4505" style="display: block; margin: auto;" /&gt;
+
+---
+
+```r
+x &lt;- 2
+
+if (x %% 2 == 0){
+  cat(x, "is an even number\n")
+*}else{
+  cat(x, "is an odd number\n")
+}
+```
+
+```
+## 2 is an even number
+```
+
+
+```r
+x &lt;- 3
+
+if (x %% 2 == 0){
+  cat(x, "is an even number\n")
+*}else{
+  cat(x, "is an odd number\n")
+}
+```
+
+```
+## 3 is an odd number
+```
+---
+# `if/else if/else` statements
+This idea generalizes by introduction other conditions, for example
+
+```r
+x &lt;- 3
+
+if (x == 0){
+  cat(x, "is zero\n")
+*} else if (x %% 2 == 0){
+  cat(x, "is an even number\n")
+  }else{
+  cat(x, "is an odd number\n")
+}
+```
+
+```
+## 3 is an odd number
+```
+
+---
+&lt;img src="images/ifelseifelse.png" width="5819" style="display: block; margin: auto;" /&gt;
+
+---
+# Vectorised `if`
+
+* The `ifelse(test, yes, no)` function handles a vector of values
+* `test` is a vector that can be coerced to a boolean
+* `yes` is the value if the element of `test` is `TRUE`
+* `no` is the value if the element of `test` is `FALSE`
+* `ifelse` returns a vector of same size as `test`
+
+
+```r
+x &lt;- 1:10
+*ifelse((x %% 2) == 0, 2, 1)
+```
+
+```
+##  [1] 1 2 1 2 1 2 1 2 1 2
+```
+
+
+---
+# `switch` statement
+
+
+```r
+*switch (EXPR,
+        "option 1" = Block 1,
+        "option 2" = Block 2,
+        ...
+        "option n" = Block n,
+        default statement
+)
+```
+
+- `EXPR` an expression evaluating to a number or a character string.
+- `option` are altrnatives to be match with `EXPR`.
+- `R` allows for a `default statement`, which will be returned when none of the listed options are matched.
+
+---
+&amp;nbsp;
+
+&amp;nbsp;
+
+&amp;nbsp;
+
+&lt;img src="images/flowchart_switch.png" width="482" height="412" style="display: block; margin: auto;" /&gt;
+
+---
+# Example
+
+```r
+number1 &lt;- 20
+number2 &lt;- 5
+operator &lt;- readline(prompt="Please enter any ARITHMETIC OPERATOR: ")
+```
+
+```
+## Please enter any ARITHMETIC OPERATOR:
+```
+
+
+
+suppose we enter the addition `"+"`
+
+
+```r
+switch(operator,
+       "+" = cat("Addition of two numbers is: ", number1 + number2),
+       "-" = cat("Subtraction of two numbers is: ", number1 - number2),
+       "*" = cat("Multiplication of two numbers is: ", number1 * number2),
+       "/" = cat("Division of two numbers is: ", number1 / number2)
+)
+```
+
+```
+## Addition of two numbers is:  25
+```
+
+---
+# Loops
+Iterative control statements are useful for repeating a task multiple times.
+
+---
+# `for` loops
+
+Consider you are in this situation
+
+```r
+print(1)
+print(2)
+print(3)
+print(4)
+print(5)
+print(6)
+```
+
+You can more compactly write:
+
+
+```r
+for (number in 1:6){
+  print(number)
+}
+```
+
+```
+## [1] 1
+## [1] 2
+## [1] 3
+## [1] 4
+## [1] 5
+## [1] 6
+```
+
+---
+# `for` loops
+- We use the reserved word `in` to associate an iterator with a sequence
+- Note that `sequence` is a vector (generally integers, but can be others)
+- optional: `break` breaks the loop
+- optional: `next` jumps to the next increment
+
+
+```r
+block A
+*for (iterator in sequence){
+  # execute this statement until last item in the sequence
+  block B # (may depend on iterator)
+  # optional:
+  if (condition1) break # (continue with block D)
+  if (condition2) next # (avoid block C, increment of 1 in the sequence and continue with block B again)
+  
+  # execute this statement if the conditions are not satisfied
+  block C
+}
+block D
+```
+
+---
+
+```r
+for (i in 1:10) {
+  if (!i %% 2){
+    next
+  }
+  print(i)
+}
+```
+
+```
+## [1] 1
+## [1] 3
+## [1] 5
+## [1] 7
+## [1] 9
+```
+
+---
+&amp;nbsp;
+
+&lt;img src="images/flowchart___for_loop.png" width="494" height="488" style="display: block; margin: auto;" /&gt;
+
+
+---
+# A note on performances
+* `R` is notoriously slow with `for`-loops and it is better to use vectorized alternatives which are more efficient.
+* Suppose you want to compute the average for each column of a matrix `\(A\)`
+
+---
+
+```r
+# initialize a random matrix
+set.seed(321) # set the seed of the RNG for reproducibility
+A &lt;- matrix(rexp(30), ncol = 3, nrow = 10)
+
+# compute the average per column
+A_colmean &lt;- vector(mode = "double", length = ncol(A))
+for(i in 1:ncol(A)){
+  A_colmean[i] &lt;- mean(A[,i])
+}
+A_colmean
+```
+
+```
+## [1] 0.9802932 0.6089899 1.0389174
+```
+
+```r
+# generic alternative 
+apply(A, MARGIN = 2, FUN = mean)
+```
+
+```
+## [1] 0.9802932 0.6089899 1.0389174
+```
+
+```r
+# specific alternative
+colMeans(A)
+```
+
+```
+## [1] 0.9802932 0.6089899 1.0389174
+```
+
+---
+# which one is the most efficient?
+
+```r
+microbenchmark::microbenchmark(
+  for(i in 1:ncol(A)){A_colmean[i] &lt;- mean(A[,i])},
+  apply(A, MARGIN = 2, FUN = mean),
+  colMeans(A)
+)
+```
+
+```
+## Unit: microseconds
+##                                                       expr      min        lq
+##  for (i in 1:ncol(A)) {     A_colmean[i] &lt;- mean(A[, i]) } 1900.742 1955.2695
+##                           apply(A, MARGIN = 2, FUN = mean)   22.415   27.5850
+##                                                colMeans(A)    3.182    4.8815
+##        mean    median        uq      max neval cld
+##  2303.00307 2070.2480 2523.8040 5180.620   100   b
+##    36.95135   36.2295   41.7335   80.579   100  a 
+##     9.31861    8.4610   11.9490   49.984   100  a
+```
+
+* Lesson: always try to use `R` builtin functions as they are usually efficient
+
+---
+* `apply(X, MARGIN, FUN, ...)` can be used for `X` an array (matrix is a special case), you can specify the `MARGIN` (1:row, 2:col, ...), `FUN` is a function and `...` are options for the function
+* There are also `sapply, lapply` for a `X` a `list`.
+* Builtin functions for matrix comprises `colMeans, colSums, rowMeans, rowSums`.
+
+---
+# `while` statement
+* `while` statement is another to repeat a block of code as long as some conditions are satisfied
+
+
+```r
+i = 1
+while (i &lt;= 6){
+  print(i)
+  i = i+1
+}
+```
+
+```
+## [1] 1
+## [1] 2
+## [1] 3
+## [1] 4
+## [1] 5
+## [1] 6
+```
+
+---
+# wild statement
+
+* What happen if you run?
+
+```r
+i = 1
+while (i &lt;= 6){
+  print(i)
+  i = i-1
+}
+```
+
+* Whereas with `for` loops you know in advance the maximum number of iterations, you may not know with a `while` loop. You will have to be more careful and it is good practice to add a `break`.
+
+---
+&amp;nbsp;
+
+&lt;img src="images/flowchart___while_statement.png" width="494" height="488" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+&lt;a href="https://ptds.samorso.ch/"&gt;
+.white[&lt;svg viewBox="0 0 384 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z"&gt;&lt;/path&gt;&lt;/svg&gt; website]
+&lt;/a&gt;
+
+&lt;a href="https://github.com/ptds2021/"&gt;
+.white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
+&lt;/a&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

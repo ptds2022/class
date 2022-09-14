@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Tools in Data Science</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Orso" />
+    <script src="lecture07_shiny_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture07_shiny_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programming Tools in Data Science
+## Lecture #7: Shiny app
+### Samuel Orso
+### 1st November 2021
+
+---
+
+# Shiny web app
+
+* Communication: allows users to interact with data and analysis
+* Shiny allows fast development of web application with `R` without the background in HTML, CSS and JavaScript.
+* Increasingly used within industry for collaboration, or for communication
+
+---
+# Example
+
+
+```r
+OSUICode::run_example("intro/dj-system",package = "OSUICode")
+```
+
+* Quick example from RStudio
+
+---
+# Hello, world!
+
+
+```r
+library(shiny)
+# User interface
+ui &lt;- fluidPage(
+  "Hello, world!"
+)
+server &lt;- function(input, output, session) {}
+shinyApp(ui, server)
+```
+
+
+&lt;img src="images/helloworld.png" width="1201" style="display: block; margin: auto;" /&gt;
+
+---
+* User interface: HTML webpage users interface with
+
+```r
+ui
+```
+
+```
+## &lt;div class="container-fluid"&gt;Hello, world!&lt;/div&gt;
+```
+* Server backend: `R` implementation and server specification
+* Execute the app with `shinyApp(ui, server)`
+
+
+---
+# Step 1: `R` code in the backend
+* Before building the interface of the web application, we need to focus on the `R` code or backend
+* Suppose we would like to create a histogram based on the waiting time between eruptions of the Old Faithful geyser in Yellowstone National Park (that can be found in the R dataset `faithful`)
+
+```r
+x &lt;- faithful[, 2] 
+```
+
+---
+* We would like to allow the user to define the number of (equi-spaced) cells 
+
+```r
+cells &lt;- 10
+
+# Histogram with input cells
+breaks &lt;- seq(min(x), max(x), length.out = cells + 1)
+hist(x, breaks = breaks)
+```
+
+&lt;img src="lecture07_shiny_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+* We also would like to allow the user to define the title and x-label
+
+```r
+label_x &lt;- "Waiting time to next eruption (in mins)"
+title &lt;- "Old Faithful Geyser Data"
+cells &lt;- 10
+
+# Histogram with input cells
+breaks &lt;- seq(min(x), max(x), length.out = cells + 1)
+hist(x, breaks = breaks, xlab = label_x, main = title)
+```
+
+&lt;img src="lecture07_shiny_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Step 2: User Interface (UI) / frontend 
+Once we have determined the structure of the code we can develop the UI.
+
+---
+# Content creation
+
+| Function        | Description                              |
+|-----------------|------------------------------------------|
+| fluidPage()     | Create a fluid page layout.              |
+| titlePanel()    | The title of the application             |
+| sidebarLayout() | Creates a sidebar layout for fluidPage() |
+| sidebarPanel()  | Makes a sidebar menu                     |
+| mainPanel()     | Main content area for different outputs  |
+
+* Alternative to `fluidPage()`: `fixedPage()` (fixed maximum width) and `fillPage()` (uses the full height of the browser).
+* `sidebarLayout()` uses `fluidRow()` that can be directly called for multi-row layout.
+
+---
+.pull-left[
+&lt;img src="images/shiny_layout.png" width="665" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+
+```r
+fluidPage(
+  titlePanel(),
+  sidebarLayout(
+    sidebarPanel(),
+    mainPanel()
+  )
+)
+```
+]
+
+---
+.pull-left[
+&lt;img src="images/shiny_layout2.png" width="659" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+
+```r
+fluidPage(
+  fluidRow(
+    column(4, ...),
+    column(8, ...)
+  ),
+  fluidRow(
+    column(6, ...),
+    column(6, ...)
+  )
+)
+```
+]
+
+---
+# Input control
+* Users provide their inputs through input controls
+* Input controls share the same structure `someInput(inputId, ...)`
+* `inputId` is accessed by the server (`input$inputId`)
+
+---
+Here are some input controls
+
+| Function        | Description               |
+|-----------------|---------------------------|
+| numericInput()  | Number entry input        |
+| radioButtons()  | Radio button selection    |
+| selectInput()   | Dropdown menu             |
+| sliderInput()   | Range slider (1/2 values) |
+| submitButton()  | Submission button         |
+| textInput()     | Text input box            |
+| checkboxInput() | Single checkbox input     |
+| dateInput()     | Date Selection input      |
+| fileInput()     | Upload a file to Shiny    |
+| helpText()      | Describe input field      |
+
+---
+# Output render control
+* Output controls create placeholder later filled by the server
+* Output controls share the same structure `someOutput(outputId, ...)`
+* `outputId` is accessed by the server (`output$outputId`)
+* Output controls are paired with a `render` function
+
+---
+Here are some output controls 
+
+| Output               |  Render            | Description   |
+|----------------------|-------------------------|-------------------------|
+| plotOutput()         | renderPlot()    | Display a rendered plot |
+| tableOutput()        | renderTable()     | Display in Table        |
+| textOutput()         | renderText()     | Formatted Text Output   |
+| uiOutput()           | renderUI()   | Dynamic UI Elements     |
+| verbatimTextOutput() | renderPrint()    | "as is"" Text Output"   |
+| imageOutput()        | renderImage()    | Render an Image         |
+| htmlOutput()         | renderUI() | Render Pure HTML        |
+
+---
+.pull-left[
+
+```r
+# Define UI for application that draws a histogram
+ui &lt;- fluidPage(
+   
+   # Application title
+   titlePanel("Old Faithful Geyser Data"),
+   
+   # Sidebar with a slider input for number of cells 
+   sidebarLayout(
+      sidebarPanel(
+         sliderInput(inputId = "cells",
+                     label = "Number of cells:",
+                     min = 1,
+                     max = 50,
+                     value = 30),
+         textInput(inputId = "label_x",
+                   label = "Label for the x-axis:"),
+         textInput(inputId = "title",
+                   label = "Title for the graph:")
+      ),
+      
+      # Show a plot of the generated distribution
+      mainPanel(
+         plotOutput(outputId = "distPlot")
+      )
+   )
+)
+```
+]
+
+.pull-right[
+&lt;img src="images/shiny_example.png" width="1451" /&gt;
+]
+
+---
+# Step 3: Implementing the backend
+* The goal of the server is to respond to user actions.
+* The server logic follows **reactive programming**: when an input is modified, all related output are updated.
+* The server prototype always looks like: `server &lt;- function(input, output, session)`.
+* `input` and `output` are list-like objects.
+
+---
+
+
+```r
+ui &lt;- fluidPage(
+  sliderInput(inputId = "cells"),
+  textInput(inputId = "label_x"),
+  textInput(inputId = "title"),
+  plotOutput(outputId = "distPlot")
+)
+
+# Define server logic required to draw a histogram
+server &lt;- function(input, output, session) {
+
+    `output$distPlot` &lt;- renderPlot({
+        # generate cells based on input$cells from ui.R
+        x    &lt;- faithful[, 2]
+        breaks &lt;- seq(min(x), max(x), length.out = `input$cells` + 1)
+
+        # draw the histogram with the specified number of cells
+        hist(x, breaks = breaks, col = 'darkgray', border = 'white', xlab = `input$label_x`, main = `input$title`)
+    })
+}
+```
+
+---
+# Declarative programming
+* Shiny uses the declarative programming paradigm: you express the logic of a computation without describing its control flows.
+* Execution order does not follow lines of code but the **reactive graph**: a display of the reactions. For example,
+&lt;img src="images/reactive_graph_ex.png" width="483" style="display: block; margin: auto;" /&gt;
+
+---
+# Reactive expression
+* Every time the user modifies any of the input (`cells`, `label_x`, `title`), Shiny assigns the `faithful` dataset to `x` and computes the `breaks` variable (for example, even if only `label_x` is modified).
+* Therefore, the app is inefficient as it does more computation as needed.
+* As we increase the number of inputs, the reactive graph becomes harder to read.
+* In order to tackle these issues, we create **reactive expressions** (using for example `reactive()`): Shiny computes values only when it might have changed (as opposed to every time or only once).
+
+---
+
+```r
+server &lt;- function(input, output) {
+  # generate cells based on input$cells from ui.R
+* x &lt;- reactive(faithful[, 2])
+* breaks &lt;- reactive(seq(min(x()), max(x()), length.out = input$cells + 1))
+  
+  output$distPlot &lt;- renderPlot({
+    # draw the histogram with the specified number of cells
+    hist(x(), breaks = breaks(), col = 'darkgray', border = 'white', xlab=input$label_x, main=input$title)
+  })
+}
+```
+
+Alternatively
+
+```r
+server &lt;- function(input, output) {
+  output$distPlot &lt;- renderPlot({
+    hist(x(), breaks = breaks(), col = 'darkgray', border = 'white', xlab=input$label_x, main=input$title)
+  })
+  breaks &lt;- reactive(seq(min(x()), max(x()), length.out = input$cells + 1))
+  x &lt;- reactive(faithful[, 2])
+}
+```
+* Order of reactive expressions does not matter, but mind human-readability!
+* Here `x` could have been assigned outside the `server` without `reactive`, but maybe you will want the possibility to change the dataset.
+
+---
+New reactive graph
+
+&lt;img src="images/reactive_graph_ex2.png" width="483" style="display: block; margin: auto;" /&gt;
+* `breaks` is computed only when the `cells` input is modified (or `x`)
+
+---
+* When working with Shiny, it is essential to understand the reactive environment.
+* **You cannot access input values outside of a reactive context**. For instance, we could imagine creating the `breaks` variable outside `renderPlot`...
+
+```r
+server &lt;- function(input, output) {
+* breaks &lt;- seq(min(x), max(x), length.out = input$cells + 1)
+  output$distPlot &lt;- renderPlot(...)
+}
+```
+... but you may get an error, `breaks` will be assigned only once at the beginning of the session.
+* If you use a function instead, 
+
+```r
+server &lt;- function(input, output) {
+* breaks &lt;- function() seq(min(x), max(x), length.out = input$cells + 1)
+  output$distPlot &lt;- renderPlot(...)
+}
+```
+it will be called every time an input is modified.
+* Once again, with **reactive expressions**, Shiny computes values only when it might have changed (as opposed to every time or only once)
+
+
+---
+# Controlling the time of evaluation
+* Until now, the Shiny app makes some computation as soon as an input is modified.
+* If the computation is cumbersome, it might be a good idea to ask the user to trigger it using an `actionButton`: the computation is done only when a button is clicked on.
+* The `actionButton` is paired with an event handler, usually `eventReactive`: they react when an expression representing an event is modified (for example `input$click`). 
+
+---
+First, we need to add the `actionButton` to the UI
+
+```r
+# Define UI for application that draws a histogram
+ui &lt;- fluidPage(
+
+    # Application title
+    titlePanel("Old Faithful Geyser Data"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput("cells",
+                        "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30),
+            textInput(inputId = "label_x",
+                      label = "Label for the x-axis:"),
+            textInput(inputId = "title",
+                      label = "Title for the graph:"),
+*           actionButton(inputId = "make_graph",
+*                        label = "Make the plot!",
+*                        icon = icon("drafting-compass"))
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput("distPlot")
+        )
+    )
+)
+```
+
+---
+Then, add the `eventReactive` into the backend
+
+```r
+# Define server logic required to draw a histogram
+server &lt;- function(input, output) {
+  # generate cells based on input$cells from ui.R
+  x &lt;- reactive(faithful[, 2])
+* breaks &lt;- eventReactive(input$make_graph, {seq(min(x()), max(x()), length.out = input$cells + 1)})
+* xlab &lt;- eventReactive(input$make_graph, {input$label_x})
+* title &lt;- eventReactive(input$make_graph, {input$title})
+  
+  output$distPlot &lt;- renderPlot({
+    # draw the histogram with the specified number of cells
+    hist(x(), breaks = breaks(), col = 'darkgray', border = 'white', xlab=xlab(), main=title())
+  })
+}
+```
+
+---
+Alternatively, since Shiny 1.6.0 it is recommended to use `reactive %&gt;% bindEvent` (you need `magrittr`)
+
+```r
+server &lt;- function(input, output) {
+  # generate cells based on input$cells from ui.R
+  x &lt;- reactive(faithful[, 2])
+* breaks &lt;- reactive(seq(min(x()), max(x()), length.out = input$cells + 1)) %&gt;% bindEvent(input$make_graph)
+* xlab &lt;- reactive(input$label_x) %&gt;% bindEvent(input$make_graph)
+* title &lt;- reactive(input$title) %&gt;% bindEvent(input$make_graph)
+  
+  output$distPlot &lt;- renderPlot({
+    # draw the histogram with the specified number of cells
+    hist(x(), breaks = breaks(), col = 'darkgray', border = 'white', xlab=xlab(), main=title())
+  })
+}
+```
+
+---
+`eventReactive` only works when `input$make_graph` is modified (the user click on the button). First nothing.
+
+&lt;img src="images/shiny_ex_1.png" width="1645" /&gt;
+
+---
+The user modifies the inputs, no graph is shown.
+
+&lt;img src="images/shiny_ex_2.png" width="1639" /&gt;
+
+---
+Until the user clicks on the `actionButton`
+
+&lt;img src="images/shiny_ex_3.png" width="1640" /&gt;
+
+---
+# Observers
+* Sometimes, you need some side-effects to happen (updating a database, sending data to the web browser, printing a message in the console, ...), you need to use **observers**.
+* **Observers** are similar to **reactive expressions** in that they can access reactive values and reactive expressions, however they do not return any value.
+* For instance, `observeEvent` works like `eventReactive`. However it does not return a value and therefore cannot be used by other reactive expressions.
+
+---
+Suppose we'd like to print a message in the console every time a graph is made
+
+```r
+server &lt;- function(input, output) {
+  ...
+  observeEvent(input$make_graph, message("Make a new graph"))
+  ...
+}
+```
+
+---
+# Step 4: Connecting frontend and backend 
+* Simply calling `shinyApp(ui = ui, server = server)` connects the UI and the backend and run the app.
+* More precisely, `shinyApp` creates a Shiny app object and printing it to the console run the app.
+* Alternatively, you could use `runApp`
+
+```r
+my_app &lt;- shinyApp(ui = ui, server = server)
+runApp(my_app)
+```
+
+---
+# Workflow
+.pull-left[
+1. Write UI and server in a single `app.R` file.
+2. Launch the app (`Ctrl/Cmd` + `Shift` + `Enter`).
+3. Experiment the app.
+4. Close the app and go to 1.]
+.pull-right[
+Minimal `app.R`
+
+```r
+ui &lt;- fluidPage()
+server &lt;- function(input, output, session){}
+shinyApp(ui, server)
+```
+]
+
+You can decide of the view you prefer &lt;img src="images/shiny_view.png" style="height:165; width:189px; position:absolute; top:62%; left:40%;"/&gt;
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-shiny-web-applications.html)
+* More material and details in [Advanced R](https://mastering-shiny.org/index.html), especially the first chapters.
+* See also [Shiny RStudio articles](https://shiny.rstudio.com/articles/)
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+&lt;a href="https://ptds.samorso.ch/"&gt;
+.white[&lt;svg viewBox="0 0 384 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z"&gt;&lt;/path&gt;&lt;/svg&gt; website]
+&lt;/a&gt;
+
+&lt;a href="https://github.com/ptds2021/"&gt;
+.white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
+&lt;/a&gt;
+]
+
+---
+# Exercises
+1. Develop the app seen in class by adding a second tab with a data table that reports summary statics of the Old Faithful Geyser (see the UI of the [Buffon's needle example](https://smac-group.github.io/ds/section-shiny-web-applications.html#section-step-2-frontend))
+
+2. Draw the new reactive graph. Can you make the app more efficient? How?
+
+3. Play with different themes using the following code and checkout your console.
+
+```r
+library(shiny)
+library(bslib)
+thematic::thematic_shiny(font = "auto")
+
+ui &lt;- fluidPage(
+  theme = bs_theme(),
+  ...
+)
+
+server &lt;- function(input, output) {
+  bs_themer()
+  ...
+}
+
+shinyApp(ui, server)
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

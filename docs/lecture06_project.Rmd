@@ -1,0 +1,118 @@
+---
+title: "Programming Tools in Data Science"
+subtitle: "Lecture #6: Project proposal"
+author: "Samuel Orso"
+date: "18 October 2021"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+
+---
+&nbsp;
+
+```{r,echo=F,out.height="70%",out.width="70%",fig.align='center'}
+knitr::include_graphics("images/team_project.png")
+```
+
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**.
+2. A well documented and well organized **GitHub repository**.
+3. A `blogdown` **website** showcasing your work and your package.
+
+---
+class: sydney-blue, center, middle
+
+# 50% of your grade!
+
+---
+# Example: nutrition calculator
+```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
+knitr::include_graphics("images/mcdonald.png")
+```
+
+---
+# Example: movie recommandation
+```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
+knitr::include_graphics("images/movie.png")
+```
+
+---
+# Example: beer recommandation
+```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
+knitr::include_graphics("images/beer.png")
+```
+
+---
+# Example: covid dashboard 
+
+```{r,echo=FALSE}
+knitr::include_url("https://infocovid.smc.unige.ch/")
+```
+
+.right[<https://infocovid.smc.unige.ch/>]
+
+---
+# Example: hexmaker
+```{r,echo=FALSE}
+knitr::include_url("https://connect.thinkr.fr/hexmake/")
+```
+
+.right[<https://connect.thinkr.fr/hexmake/>]
+
+---
+Source of inspiration:
+* <https://www.r-bloggers.com/>
+* <https://shiny.rstudio.com/gallery/#user-showcase>
+* <https://blog.rstudio.com/2019/04/05/first-shiny-contest-winners/>
+* <https://blog.rstudio.com/2020/07/13/winners-of-the-2nd-shiny-contest/>
+* <https://attalitech.com/#portfolio>
+* <https://connect.thinkr.fr/connect/>
+
+---
+# Proposal
+You must submit a project proposal for reviewing by **2021-11-07 11:59pm**. The proposal must comprise:
+1. **Goals and impacts**: describe briefly the rationale of your project, you overall objectives and potential impacts.   
+2. **Plan**: detail your approach and your specific objectives:
+  + Explain the methods (`R` packages, ...) to be used and the methods to be developped. Give potential
+  + Explain existing sources of inspirations (other classes, stackoverflow, R-blogger, blogs, ...) and the potential overlaps with your project.
+  + Explain your data collection strategy, the risks as well as possible alternative strategies.
+
+---
+3. **Timeline and milestones**: describe the timeline of your project and indicate key intermediary goals in a Gantt chart (see [this package](https://github.com/giocomai/ganttrify) for example).
+4. **Management plan**: explain how you plan to collaborate (weekly meeting on Zoom, ...) and indicate responsabilities (each member of the team should be at least responsible for one part of the project).
+
+---
+Gantt chart example
+
+```{r,echo=FALSE}
+knitr::include_graphics("images/gantt.png")
+```
+
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+<a href="https://ptds.samorso.ch/">
+.white[`r icons::fontawesome("file")` website]
+</a>
+
+<a href="https://github.com/ptds2021/">
+.white[`r icons::fontawesome("github")` GitHub]
+</a>
+]

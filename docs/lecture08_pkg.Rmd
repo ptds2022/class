@@ -1,0 +1,271 @@
+---
+title: "Programming Tools in Data Science"
+subtitle: "Lecture #8: R package"
+author: "Samuel Orso"
+date: "8 November 2021"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js"]
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+
+---
+# R package
+* Packages provide a convenient mechanism to distribute your code.
+* It follows strict conventions (structure, folder names, ...).
+* It allows testing and better maintenance.
+
+---
+# Setup
+* You will need (at least) the following packages:
+```{r,eval=FALSE}
+install.packages(c("devtools", "roxygen2", "testthat", "knitr"))
+```
+
+* Make sure your system is ready!
+```{r}
+devtools::has_devel()
+```
+(otherwise visit <https://r-pkgs.org/setup.html>)
+
+---
+class: sydney-blue, center, middle
+
+# Demo
+
+---
+# DESCRIPTION file
+* DESCRIPTION contains metadata of your package (authors, description, dependencies, contact, ...)
+* It should look like
+```{r, eval=F}
+Package: pkgtest
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Authors@R: person("John", "Doe", email = "john.doe@example.com",
+                  role = c("aut", "cre"))
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+URL: https://https://github.com/ptds2021/pkgtest
+BugReports: https://https://github.com/ptds2021/pkgtest/issues
+RoxygenNote: 7.1.2
+```
+
+---
+* Use the `person` function for `Authors@R`, role includes:
+  a. `"cre"`: (creator) for package maintainer;
+  b. `"aut"`: (author) those who made substantial contributions to the package;
+  c. `"ctb"`: (contributor) those who made smaller contribution;
+  d. `"cph"`: (copyright holder) used for legal name for an institution or corporate body.
+* `License`: since the point of a package is to be distributed to others, you need to [choose a licence](https://choosealicense.com/licenses/). For example, [MIT](https://choosealicense.com/licenses/mit/) is permissive and can be called
+```{r,eval=FALSE}
+usethis::use_mit_license()
+```
+
+---
+# Dependencies
+* DESCRIPTION lists all the packages needed for your package to work.
+* `Depends` specifies the version of `R`; e.g.
+```{r,eval=FALSE}
+Depends: R (>= 4.0.0) # don't forget the space!
+```
+* `Imports` lists the package that must be present (best practice is to write `pkg::fct()`); for example, suppose you need `ggplot2` and `dplyr`
+```{r,eval=FALSE}
+Imports:
+    dplyr (>= 1.0.7),
+    ggplot2 (>= 3.3.5)
+```
+Versioning ensures that users have the right version of the package.
+
+* `Suggests` lists packages that can be used (for vignettes, test, datasets,...) but are not required.
+
+
+---
+# Documenting your package
+* Documentation appears in the `man/` (manual) subfolder as `*.Rd` files.
+* We will generate documentation automatically using `roxygen2`.
+* You can either use `devtools::document()` or maybe simpler
+```{r,echo=FALSE,fig.align='center'}
+knitr::include_graphics("images/roxygen2.png")
+```
+
+
+---
+* It uses the syntax `#'` with tags `@` and is placed right before functions, e.g.
+```{r,eval=FALSE}
+#' @title hello world function
+#' @return print a message
+#' @export
+hello <- function() {
+  print("Hello, world!")
+}
+```
+* Main tags should for functions are `@title`, `@param`, `@author`, `@seealso`, `@details`, `@examples`, `@return` (click [here](https://r-pkgs.org/man.html) for more details)
+* **All** functions should be documented. **Some** should be exported (`#' @export`)
+* **Do repeat yourself**
+
+---
+.pull-left[
+```{r,echo=F,fig.align='center'}
+knitr::include_graphics("images/pkgtest_hello_world.png")
+```
+]
+.pull-right[
+```{r,eval=FALSE}
+#' `@title` hello world function
+#' `@author` John Doe
+#' `@details`
+#' A super fancy function to print Hello World!
+#' `@return` print a message
+#' `@examples`
+#' \dontrun{hello()}
+#' `@export`
+hello <- function() {
+  print("Hello, world!")
+}
+```
+]
+
+---
+# Vignettes
+* A vignette is a RMarkdown document that provides more insights into your package.
+* Simply call `usethis::use_vignette("my-vignette")` to create `my-vignette`.
+* Add required packages in DESCRIPTION under `Suggests`
+
+---
+# Namespace
+> Writing R extension, [Sec. 1.5](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Package-namespaces)
+>
+> The namespace controls the search strategy for variables used by functions in the package. If not found locally, R searches the package namespace first, then the imports, then the base namespace and then the normal search path (so the base namespace precedes the normal search rather than being at the end of it).
+
+* NAMESPACE is generated automatically by `roxygen2`
+
+---
+# Testing with examples
+* Testing ensures that your code is good and pays-off in the long-run.
+* Examples are good way to make sure the function work and are displayed to the user.
+* You can put more complex examples in `inst/examples/my_example.R` and test it using `@example inst/examples/my_example.R`
+
+---
+# Example
+In `R/`
+```{r,eval=FALSE}
+#' @title Compute regression coefficients
+#' @param x design \code{matrix}
+#' @param y \code{vector} of responses
+#' @details
+#' Compute the regression coefficients using \link[stats]{lm}.
+#' @importFrom stats lm coef
+#' @seealso \code{\link[stats]{lm}}, \code{\link[stats]{coef}}
+#' `@example /inst/examples/eg_lm.R`
+#' @export
+regression_coefficient <- function(x,y){
+  fit <- lm(y~x)
+  coef(fit)
+}
+```
+
+In `/inst/examples/eg_lm.R`
+```{r,eval=FALSE}
+## linear regression
+regression_coefficient(x = cars$speed, y = cars$dist)
+```
+
+---
+If you click on `check`
+
+```{r,echo=FALSE,out.width=606,out.height=505}
+knitr::include_graphics("images/pkg_check.png")
+```
+
+---
+Now suppose there is a mistake in the code, for instance in `/inst/examples/eg_lm.R`
+```{r,eval=FALSE}
+## linear regression
+regression_coefficient(x = cars$speed, y = cars)
+```
+```{r,echo=FALSE,out.width=600,out.height=500}
+knitr::include_graphics("images/pkg_check2.png")
+```
+
+---
+# Testing with `testthat` 
+* Examples help to detect errors in the code, but their primary goals is informative for the users.
+* Examples are displayed to the users and concerns final end functions.
+* It is good practice to have broader and automated tests.
+* We are going to use `testthat`. Simply call `usethis::use_testthat()`.
+* When should you test a function?
+> Whenever you are tempted to type something into a print statement or a debugger expression, write it as a test instead. — Martin Fowler
+
+---
+# Structure of `testthat`
+* `testthat` is organised hierarchically:
+1. An **expectation**: it is a single test using `expect_some_fct`, these are functions that test an expression and throw an error if the result disagree with what was expected.
+2. A **test**: regroup one or several **expectations** and is created with `test_that`.
+3. A **test file**: regroup one or several **test**. It is an `R` file and its name and structure conventions follows this example: `tests/testthat/test_something.R`.
+
+---
+For example, the file `tests/testthat/test_reg_coef.R`
+
+```{r,eval=FALSE}
+test_that("regression coefficient input check",{
+  expect_error(regression_coefficient(x = cars$speed, y = cars))
+})
+
+test_that("regression coefficient output",{
+  expect_type(regression_coefficient(x = cars$speed, y = cars$dist), "double")
+})
+```
+
+---
+# Automated checking
+* It is not because you and your team does not experiment any bug that everything is okay.
+* `R` users have different configurations, different OS.
+* It is good practice to use GitHub actions: every time you push changes to the main repo, GitHub launches some action according to your spec.
+* To begin with, use `usethis::use_github_action_check_standard()`
+* More examples are displayed at <https://github.com/r-lib/actions/tree/master/examples>
+
+---
+and if everything passes
+```{r,echo=FALSE}
+knitr::include_graphics("images/github_action.png")
+```
+
+---
+Find all the code presented here: <https://github.com/ptds2021/pkgtest>
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-r-packages.html)
+* More material and details in [R Packages](https://r-pkgs.org/).
+* A lot of details (really!) in [Writing R extension](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Creating-R-packages)
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+<a href="https://ptds.samorso.ch/">
+.white[`r icons::fontawesome("file")` website]
+</a>
+
+<a href="https://github.com/ptds2021/">
+.white[`r icons::fontawesome("github")` GitHub]
+</a>
+]

@@ -1,0 +1,423 @@
+---
+title: "Programming Tools in Data Science"
+subtitle: "Lecture #11: advanced {shiny}"
+author: "Samuel Orso"
+date: "29 November 2021"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js"]
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+
+---
+# Modularizing Shiny
+<blockquote>
+Modules are one of the most powerful tools for building shiny applications in a maintainable and sustainable manner.
+.right[<cite>Engineering Production-Grade Shiny Apps</cite>]
+</blockquote> 
+
+---
+# Motivations
+* When your code grows in complexity, it is convenient to use a *divide and conquer* strategy by writing small pieces of code into functions.
+* It makes the code more readable and small pieces are easier to inspect/fix.
+* It allows parts of the code to be reusable. A good rule of thumb is: "*if you copy and paste something more than twice, you should make a function*".
+
+---
+# Motivations
+* In Shiny, functions don't fully address the problem since IDs are global: each ID must be unique!
+* Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app (if you don't recall what a namespace is, see this [link](https://adv-r.hadley.nz/environments.html#namespaces)).
+
+---
+# Simple example
+```{r, eval=FALSE}
+# Shiny App
+library(shiny)
+
+ui <- fluidPage(
+  selectInput("var", "Variable", names(mtcars)),
+  numericInput("bins", "bins", 10, min = 1),
+  plotOutput("hist")
+)
+server <- function(input, output, session) {
+  data <- reactive(mtcars[[input$var]])
+  output$hist <- renderPlot({
+    hist(data(), breaks = input$bins, main = input$var)
+  }, res = 96)
+}
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+* As an app, one usually creates a pair of UI and server modules.
+
+---
+# UI module
+```{r,eval=FALSE}
+histogramUI <- function(id) {
+  # This ns <- NS structure creates a 
+  # "namespacing" function, that will 
+  # prefix all ids with a string
+  ns <- NS(id) #<<
+  tagList(
+    selectInput(ns("var"), "Variable", choices = names(mtcars)),
+    numericInput(ns("bins"), "bins", value = 10, min = 1),
+    plotOutput(ns("hist"))
+  )
+}
+```
+* The UI code is inside a function with `id` argument.
+* There are two new things: 
+  1. `ns <- NS(id)` creates a *namespacing* function.
+  2. All `inputId` are now wrapped in `ns(inputId)`.
+* You return a `htmltools::tagList`, a `list()` of HTML tags, instead of a `fluidPage` for example. It's a fragment that could be combined with other fragments in the app.
+
+---
+# Server module
+```{r, eval=FALSE}
+histogramServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    data <- reactive(mtcars[[input$var]])
+    output$hist <- renderPlot({
+      hist(data(), breaks = input$bins, main = input$var)
+    }, res = 96)
+  })
+}
+```
+* The server code is inside the `moduleServer` function, itself inside a function with (at least) the `id` argument.
+* We have `moduleServer(id, module, session = getDefaultReactiveDomain())` where `module` is the *usual* server function.
+
+---
+# Back to the app
+```{r,eval=FALSE}
+# Main application
+ui <- fluidPage(
+  histogramUI("hist1")
+)
+server <- function(input, output, session) {
+  histogramServer("hist1")
+}
+# Run the application 
+shinyApp(ui, server) 
+```
+* Note that you need to use the same `id` in `histogramUI` and `histogramServer`.
+* The application looks much simpler, and you could imagine adding as many modules as you like. 
+
+---
+# Namespacing
+* For UI module, the namespacing is explicit with calls to `ns <- NS(id)` and `ns(inputId)`.
+* For server module, the namespacing is implicit. Shiny automatically namespaces input and output following the same convention as UI module.
+* In the following example, the `input$bins` from the `sliderInput` is never used, even though it "appears" in the server module.
+```{r,eval=FALSE}
+# Recall server function has this line:
+...
+hist(data(), breaks = input$bins, main = input$var)
+...
+
+# Main app
+ui <- fluidPage(
+  histogramUI("hist1"),
+  sliderInput("bins", "Another bins:",0,10,5)
+)
+server <- function(input, output, session) {
+  histogramServer("hist1")
+}
+# Run the application 
+shinyApp(ui, server)
+```
+
+---
+# Communication between modules
+* Very often, you will need to share data among modules.
+* A common approach is to return a `reactive()` from a module, and pass it as an argument to another module. 
+
+---
+# Example
+```{r,eval=FALSE}
+# New server module
+histogramServer <- function(id, data, title = reactive("Histogram")) { #<<
+  stopifnot(is.reactive(data))
+  moduleServer(id, function(input, output, session) {
+    output$hist <- renderPlot({
+      hist(data(), breaks = input$bins, main = title())
+    }, res = 96)
+  })
+}
+
+ui <- fluidPage(
+  histogramUI("hist1")
+)
+server <- function(input, output, session) {
+  data <- reactive(mtcars$mpg) #<<
+  histogramServer("hist1", data)
+}
+# Run the application 
+shinyApp(ui, server)
+```
+
+.bottom[See <https://mastering-shiny.org/scaling-modules.html#inputs-and-outputs> for a more complete example]
+
+---
+# Communication between modules
+* This approach becomes hard to maintain with a lot of reactive function calls.
+* An alternative is the ["stratégie du petit r"](https://engineering-shiny.org/structuring-project.html#b.-the-strat%C3%A9gie-du-petit-r): a global `reactiveValues` list is created and passed to along modules.
+* Another alternative is the ["stratégie du grand R6"](https://engineering-shiny.org/structuring-project.html#c.-the-strat%C3%A9gie-du-grand-r6), which is similar, but uses [R6 object-oriented programming](https://adv-r.hadley.nz/r6.html).
+* See also [tidymodules](https://opensource.nibr.com/tidymodules/articles/tidymodules.html) based on R6 OOP.
+
+---
+# Structuring your application
+* It is highly recommended to structure an application as a package.
+* Benefits are multiple: structure, documentation, tests, deployment, workflow, check, ...
+
+---
+# `{golem}`
+```{r,echo=FALSE,fig.align='center'}
+knitr::include_graphics("images/golem.png")
+```
+
+---
+# `{golem}`
+* A `{golem}` application is a R package.
+* Everything you know about package development can be applied to `{golem}`.
+* A `{golem}` app works better with Shiny modules.
+
+---
+# `{golem}` structure
+* A `{golem}` application is a R package, so you find the usual files and folders.
+* Create a `{golem}` application using `New project... > Package for Shiny App using golem`.
+* `R/` contains several default files. This is where you create the different modules.
+* `dev/` contains a series of files that can be useful for the project development.
+* `inst/app/www/` contains all files made available to the application at run time (CSS, JavaScript,...).
+
+---
+# `golem-config`
+* `{golem}` uses [config](https://github.com/rstudio/config) to manage environment specific configuration values. 
+* There are two ways `{golem}` app are configured:
+  1. Runtime configuration using the `golem_opts` in `run_app()`. It is convenient for testing.
+  2. Backend configuration using the `inst/golem-config.yml` file. It is convenient for VCS and deployment.
+
+.bottom[Checkout golem [cheatsheet](https://thinkr.fr/golem_cheatsheet_v0.1.pdf)]
+
+---
+# Naming convention in `{golem}`
+<blockquote>
+Using a convention allows everyone to know where to look when <b>debugging</b>, <b>refactoring</b>, or <b>implementing new features</b>.
+.right[<cite>Engineering Production-Grade Shiny Apps</cite>]
+</blockquote> 
+
+---
+# Refactoring
+
+A simple system with input and output
+```{r,fig.align='center',echo=FALSE,out.width=640,out.height=160}
+knitr::include_graphics("images/simple_system.png")
+```
+
+A simple **refactored** system with input and output 
+```{r,fig.align='center',echo=FALSE,out.width=640,out.height=160}
+knitr::include_graphics("images/refactored_system.png")
+```
+
+.bottom[
+Source: Lemaire, Maude. 2020. [*Refactoring at Scale*](https://learning.oreilly.com/library/view/refactoring-at-scale/9781492075523/)
+]
+
+---
+# Naming convention in `{golem}`
+* `app_*` (`app_ui.R`, `app_server.R`) contain the top-level functions defining user interface and server function.
+* `fct_*` contain general functions that can be used by several modules.
+* `mod_*` contain unique modules.
+* `utils_*` contain utilities: small helper functions.
+* `*_ui_*` and `*_server_*` refer to UI or server specific, e.g. `utils_ui.R` contains utilities specific for UI.
+
+.bottom[
+See for example the [`{hexmake}`](https://github.com/ColinFay/hexmake/tree/master/R) Shiny App.
+]
+
+---
+# Save development time with snippets
+```{r,echo=FALSE,fig.align='center',out.height=500,out.width=500}
+knitr::include_graphics("images/snippet_1.png")
+```
+---
+# Save development time with snippets
+```{r,echo=FALSE,fig.align='center',out.height=500,out.width=750}
+knitr::include_graphics("images/snippet_2.png")
+```
+
+
+---
+# Save development time with `{shinysnippets}`
+* You can install `{shinysnippets}` from GitHub:
+```{r,eval=FALSE}
+remotes::install_github("Thinkr-open/shinysnippets")
+```
+* Then run:
+```{r,eval=FALSE}
+shinysnippets::add_snippets()
+```
+and confirm.
+
+&nbsp;
+
+.bottom[
+See also [RStudio article](https://support.rstudio.com/hc/en-us/articles/204463668-Code-Snippets?version=2021.09.1%2B372&mode=desktop)   
+]
+---
+
+```{r,echo=F,fig.align='center'}
+knitr::include_graphics("images/module_snippet.gif")
+```
+
+---
+# Performance: identify the bottleck
+```{r,echo=F,fig.align='center',out.height=300,out.width=600}
+knitr::include_graphics("images/bottleneck.png")
+```
+
+
+<blockquote>
+This bottleneck is the very thing you should be optimizing: having faster code anywhere else except this bottleneck will not make your app faster: you will just make your app reach the bottleneck faster, but there will still be this part of your app that slows everything down.
+.right[<cite>Engineering Production-Grade Shiny Apps</cite>]
+</blockquote>
+
+---
+# Profiling Shiny App
+* A good way to profile R code is to use the [profvis](https://rstudio.github.io/profvis/) package.
+* For a Shiny App, you could use simply use it as follows:
+```{r,eval=FALSE}
+# Note the explicit call to runApp() here: this is important
+# as otherwise the app won't actually run.
+profvis::profvis(runApp(shinyApp(ui, server)))
+```
+
+---
+# Example
+```{r,eval=FALSE}
+library(profvis)
+
+f <- function() {
+  pause(0.2)
+  g()
+  10
+}
+g <- function() {
+  pause(0.1)
+  5
+}
+profvis::profvis(f())
+```
+```{r,echo=FALSE,fig.align='center',out.height=240,out.width=800}
+knitr::include_graphics("images/flame_graph.png")
+```
+
+
+---
+# Example
+```{r,eval=FALSE}
+library(shiny)
+ui <- fluidPage(
+  actionButton("x", "Click on me"),
+  textOutput("y")
+)
+server <- function(input, output, session) {
+  output$y <- eventReactive(input$x, f())
+}
+profvis::profvis({runApp(shinyApp(ui, server))})
+```
+
+---
+```{r,echo=FALSE,fig.align='center'}
+knitr::include_graphics("images/profiling_shiny.png")
+```
+
+---
+* Much more processes are involved and it becomes not so easy to read.
+* `f()` and `g()` calls are called by an event reactive handler.
+* The profiling is performed locally, so it does not necessarily reflected on how the typical user experience.
+* Nowadays, more than half of all the web traffic comes from smartphone.
+* See <https://mastering-shiny.org/performance.html#profiling-a-shiny-app> for more details
+* See [RStudio article](https://rstudio.github.io/profvis/examples.html#example-3---profiling-a-shiny-application) for other examples
+
+---
+# Profiling UI with Google Lighthouse
+<img src="images/lighthouse-logo.svg" style="height:100px; width:100px; position:absolute; top:7%; right:20%;"/>
+* [Google Lighthouse](https://developers.google.com/web/tools/lighthouse) allows to perform a profiling from the user's perspective via Google Chrome web browser.
+* To use this tool:
+  1. Open Chrome-based browser in incognito mode (so the experience is a neutral as possible).
+  2. Enter the Shiny App url.
+  3. Open the `Developer tools`.
+  4. Click on `Lighthouse`.
+  5. Click on `Generate report`.
+
+---
+```{r,echo=FALSE}
+knitr::include_graphics("images/lighthouse_1.png")
+```
+---
+```{r,echo=FALSE}
+knitr::include_graphics("images/lighthouse_2.png")
+```
+
+---
+# Key audit measures
+* You can use the report to enhance your application.
+* Performance: measure the time for rendering a page. Unfortunately, "opportunities" are not always possible to address as you depend on `Shiny`.
+* Accessibility: it relates to UI: some tests are performed to make sure the application is universally accessible (see Accessibility chapter [here](https://engineering-shiny.org/ux-matters.html#web-accessibility)).
+* Best Practices: it tests some misc best practices around web applications.
+* SEO (Search Engine Optimization): it tests how the application performs in terms of search engine.
+
+.bottom[
+Other sources:
+* <https://web.dev/why-speed-matters/>
+* <https://web.dev/learn/#lighthouse>
+* <https://developer.mozilla.org/en-US/docs/Web/Performance>
+]
+
+---
+# This lecture was prepared using
+* Chapters 3 to 5 and 14 of [Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/index.html)
+* Chapters 17 to 23 of [Mastering Shiny](https://mastering-shiny.org/index.html)
+* RStudio articles [Modularizing Shiny app code](https://shiny.rstudio.com/articles/modules.html)
+
+---
+# To go further
+* Checkout other Chapters of [Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/index.html) and [Mastering Shiny](https://mastering-shiny.org/index.html)
+* Refer to the [Golemverse](https://golemverse.org/)
+* Checkout [shinymodules](https://github.com/Novartis/tidymodules)
+* Become an expert of UI following [Outstanding User Interfaces with Shiny](https://unleash-shiny.rinterface.com/index.html)
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+<a href="https://ptds.samorso.ch/">
+.white[`r icons::fontawesome("file")` website]
+</a>
+
+<a href="https://github.com/ptds2021/">
+.white[`r icons::fontawesome("github")` GitHub]
+</a>
+]
+
+---
+# Exercise
+1. Create a `{golem}` application project.
+2. For the UI:   
+  a. a user should input a tibble,   
+  b. a user should select two columns from the columns names,   
+  c. a user should see a plot with the two selected columns as an output.   
+3. Write the UI and backend using shiny modules and respect the `{golem}` conventions.
+4. Use everything you know from package development (tests, documentation, check, ...).
+5. Profile your app with Google Lighthouse.

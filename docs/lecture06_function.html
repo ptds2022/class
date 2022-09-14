@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Tools in Data Science</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Orso" />
+    <script src="lecture06_function_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture06_function_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programming Tools in Data Science
+## Lecture #6: Function
+### Samuel Orso
+### 18 &amp; 25 October 2021
+
+---
+
+# Function
+&lt;img src="images/lego-674354_1280.jpg" width="600" height="400" style="display: block; margin: auto;" /&gt;
+
+---
+&lt;img src="images/function.png" width="3541" style="display: block; margin: auto;" /&gt;
+
+---
+# Function components
+A function has three components:
+
+- **arguments**: the inputs the user gives to the function which will determine the value or type of output of a function;
+- **body**: the code lines containing the commands and operations which deliver the desired output;
+- **environment**: every R function is built within an environment of reference from which to source possible input values and/or other functions necessary for it to work.
+
+---
+# Function parts
+You can verify these components using:
+
+- `formals(fun)`: return a list of arguments for `fun`;
+- `body(fun)`: return the code lines from within `fun`;
+- `environment(fun)`: return a frame, i.e. a collection of named objects, where `fun` finds values associated with names. 
+
+---
+# Example
+
+```r
+my_div &lt;- function (numerator, denominator) {
+  div &lt;- numerator / denominator
+  return(div)
+}
+
+formals(my_div)
+```
+
+```
+## $numerator
+## 
+## 
+## $denominator
+```
+
+```r
+body(my_div)
+```
+
+```
+## {
+##     div &lt;- numerator/denominator
+##     return(div)
+## }
+```
+
+```r
+environment(my_div)
+```
+
+```
+## &lt;environment: R_GlobalEnv&gt;
+```
+
+---
+# Arguments
+How arguments can be passed to a function in `R`?
+
+* **positional matching**: arguments must be entered in the same order as defined in the function 
+
+```r
+my_div(1, 2)
+```
+
+```
+## [1] 0.5
+```
+
+```r
+my_div(2, 1)
+```
+
+```
+## [1] 2
+```
+
+---
+# Arguments
+* **perfect matching**: `R` searches for the arguments matching the exact name
+
+```r
+my_div(numerator = 1, denominator = 2)
+```
+
+```
+## [1] 0.5
+```
+
+```r
+my_div(denominator = 1, numerator = 2)
+```
+
+```
+## [1] 2
+```
+
+---
+# Arguments
+* **prefix matching**: `R` searches for the first letters matching the exact name
+
+```r
+my_div(n = 1, d = 2)
+```
+
+```
+## [1] 0.5
+```
+
+```r
+my_div(d = 1, n = 2)
+```
+
+```
+## [1] 2
+```
+
+---
+# A note on assignment operators `=` `&lt;-`
+
+* Both `=` `&lt;-` can be used to assign a value to a name.
+* When used to assign function arguments, there is a major difference:
+
+```r
+my_div(numerator = 2, denominator = 1)
+```
+
+```
+## [1] 2
+```
+
+```r
+numerator
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'numerator' not found
+```
+
+```r
+my_div(numerator &lt;- 2, denominator = 1)
+```
+
+```
+## [1] 2
+```
+
+```r
+numerator
+```
+
+```
+## [1] 2
+```
+
+---
+# Body
+The body of a function is simply the set of instructions and (possible) other functions that use the arguments provided by the user and computes the desired output.
+
+&lt;center&gt;
+&lt;iframe src="https://giphy.com/embed/3oEdv9Y8md1SwyOMYE" width="360" height="360" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/animation-mechanical-3oEdv9Y8md1SwyOMYE"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
+&lt;/center&gt;
+
+---
+# Signalling conditions
+As a programmer, it is important to give meaningful indications to the user. There three types of signalling conditions:
+
+* **errors**: sever problem, indicated via `stop()`;
+* **warnings**: mild problem, indicated via `warning()`;
+* **messages**: informative, indicated via `message()`.
+
+---
+# Errors
+Errors are related to the intentions behind the program. The programmer should ensure that the function is used within the scope of the intention.
+
+```r
+# Is it possible to divide two characters?
+my_div("numerator","denominator")
+```
+
+```
+## Error in numerator/denominator: non-numeric argument to binary operator
+```
+
+
+```r
+# new definition
+my_div &lt;- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+* if(any(!is.numeric(numerator), !is.numeric(denominator))){
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  div &lt;- numerator / denominator
+  return(div)
+}
+my_div("numerator","denominator")
+```
+
+```
+## Error in my_div("numerator", "denominator"): `numerator` and `denominator` must be numeric
+```
+
+---
+
+```r
+# a matrix is still numeric, does it work?
+A &lt;- matrix(1:9,ncol=3)
+B &lt;- matrix(1:12,ncol=3)
+my_div(A,B)
+```
+
+```
+## Error in numerator/denominator: non-conformable arrays
+```
+
+At this point, the programmer has to decide whether arrays are allowed. If the answer is positive, then extra verification is necessary as the dimension must match. 
+
+
+```r
+# dimension for arrays
+dim(A)
+```
+
+```
+## [1] 3 3
+```
+
+```r
+length(A)
+```
+
+```
+## [1] 9
+```
+
+```r
+# what happens for a vector?
+a &lt;- 1:3
+dim(a)
+```
+
+```
+## NULL
+```
+
+```r
+length(a)
+```
+
+```
+## [1] 3
+```
+
+
+---
+
+```r
+# new definition
+my_div &lt;- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+  if(any(!is.numeric(numerator), !is.numeric(denominator))){
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  # verify length match
+* if(length(numerator) != length(denominator)){
+    stop("`numerator` and `denominator` must have the same length")
+  }
+  # verify dimension match
+* if(length(dim(numerator)) != length(dim(denominator))){
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+* if(any(dim(numerator) != dim(denominator))){
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+  
+  div &lt;- numerator / denominator
+  return(div)
+}
+my_div(A, B)
+```
+
+```
+## Error in my_div(A, B): `numerator` and `denominator` must have the same length
+```
+
+```r
+A &lt;- matrix(1:9,ncol=3)
+B &lt;- matrix(10:18,ncol=3)
+my_div(A, B)
+```
+
+```
+##           [,1]      [,2]      [,3]
+## [1,] 0.1000000 0.3076923 0.4375000
+## [2,] 0.1818182 0.3571429 0.4705882
+## [3,] 0.2500000 0.4000000 0.5000000
+```
+
+---
+# Warnings
+Suppose that when two arrays of different size but same dimensions are input, the programmer decide to return the division of a reduced form. The programmer should then warn the user.  
+
+---
+
+```r
+# new definition
+my_div &lt;- function (numerator, denominator) {
+  # verify that both arguments are numeric (double or integer)
+  if(any(!is.numeric(numerator), !is.numeric(denominator))){
+    stop("`numerator` and `denominator` must be numeric")
+  }
+  
+  # verify dimension match
+  if(length(dim(numerator)) != length(dim(denominator))){
+    stop("`numerator` and `denominator` must have the same dimensions")
+  }
+  
+  # verify length match
+  new_num &lt;- numerator
+  new_den &lt;- denominator
+  num_len &lt;- length(numerator)
+  den_len &lt;- length(denominator)
+  if(num_len != den_len){
+    # two cases
+    if(num_len &lt; den_len){
+      new_den &lt;- numerator # `new_den` has same dimension has `numerator`
+      new_den[seq_len(num_len)] &lt;- denominator[seq_len(num_len)]
+*     warning("Size of `denominator` is reduced to match `numerator`")
+    } else {
+      new_num &lt;- numerator # `new_num` has same dimension has `denominator`
+      new_num[seq_len(num_len)] &lt;- numerator[seq_len(num_len)]
+*     warning("Size of `numerator` is reduced to match `denominator`")
+    }
+  }
+  
+  div &lt;- new_num / new_den
+  return(div)
+}
+```
+
+---
+
+```r
+A &lt;- matrix(1:9,ncol=3)
+B &lt;- matrix(1:30,ncol=3)
+A/B
+```
+
+```
+## Error in A/B: non-conformable arrays
+```
+
+```r
+my_div(A, B)
+```
+
+```
+## Warning in my_div(A, B): Size of `denominator` is reduced to match `numerator`
+```
+
+```
+##      [,1] [,2] [,3]
+## [1,]    1    1    1
+## [2,]    1    1    1
+## [3,]    1    1    1
+```
+
+---
+# Messages
+The programmer optionally can print informative message.
+
+```r
+# new definition
+my_div &lt;- function (numerator, denominator) {
+  ...
+  
+* message("Starting the division")
+  
+  div &lt;- new_num / new_den
+  return(div)
+}
+```
+
+
+
+```r
+my_div(A, B)
+```
+
+```
+## Warning in my_div(A, B): Size of `denominator` is reduced to match `numerator`
+```
+
+```
+## Starting the division
+```
+
+```
+##      [,1] [,2] [,3]
+## [1,]    1    1    1
+## [2,]    1    1    1
+## [3,]    1    1    1
+```
+
+---
+# Lexical scoping
+Lexical scoping consists in how to find a value associated with a name. What do you think will be the output of the following command?
+
+```r
+new_num &lt;- 1
+new_den &lt;- 2
+my_div(A, B)
+```
+
+---
+When looking for the value of a name, `R` follows some rules:
+
+* **dynamic lookup**: `R` looks for a name when the function is run, not when it is created.
+
+```r
+f &lt;- function() x * x
+f()
+```
+
+```
+## Error in f(): object 'x' not found
+```
+
+```r
+x &lt;- 10
+f()
+```
+
+```
+## [1] 100
+```
+
+* **name masking**: `R` looks for a name from the current environment, and if not supplied, to the parent environment and so on.
+
+```r
+x &lt;- 10
+f &lt;- function(){
+  x &lt;- 1
+  x * x
+} 
+f()
+```
+
+```
+## [1] 1
+```
+
+---
+# Environment
+It is important to understand environment to understand where `R` finds names. Environment is a collection of named objects.
+
+* Every name in an environment is unique
+* Every environment has a parent
+
+---
+Special environment:
+
+* **current**: this is where the code is currently running, usually the global environment.
+
+```r
+environment()
+```
+
+```
+## &lt;environment: R_GlobalEnv&gt;
+```
+* **global**: this is your "workspace", where you interactively experiment some code in `R`
+
+```r
+globalenv()
+```
+
+```
+## &lt;environment: R_GlobalEnv&gt;
+```
+* **empty**: every environment has a parent except the empty environment, which is empty
+
+```r
+emptyenv()
+```
+
+```
+## &lt;environment: R_EmptyEnv&gt;
+```
+
+
+---
+* **execution**: it usually exists only during function calls.
+
+```r
+f &lt;- function() print(environment())
+f()
+```
+
+```
+## &lt;environment: 0x55a8bb21c318&gt;
+```
+
+```r
+f()
+```
+
+```
+## &lt;environment: 0x55a8bb26d988&gt;
+```
+
+* **package**: when you attach a package with `library(pkg)`, the package becomes a parent of the global environment.
+
+---
+When looking for a binding, `R` follows a path
+
+```r
+search()
+```
+
+```
+## [1] ".GlobalEnv"        "package:stats"     "package:graphics" 
+## [4] "package:grDevices" "package:utils"     "package:datasets" 
+## [7] "package:methods"   "Autoloads"         "package:base"
+```
+
+```r
+library(ggplot2)
+search()
+```
+
+```
+##  [1] ".GlobalEnv"        "package:ggplot2"   "package:stats"    
+##  [4] "package:graphics"  "package:grDevices" "package:utils"    
+##  [7] "package:datasets"  "package:methods"   "Autoloads"        
+## [10] "package:base"
+```
+
+Be careful, if two packages have the same name for a function, which one is going to be called? You can use the operator `pkg::name` to make sure you make the right call.
+
+---
+&lt;blockquote&gt;
+To understand computations in `R`, two slogans are helpful:
+
+&lt;ul&gt;
+&lt;li&gt;Everything that exists is an object.&lt;/li&gt;
+&lt;li&gt;Everything that happens is a function call.&lt;/li&gt;
+&lt;/ul&gt;
+.right[— John Chambers]
+&lt;/blockquote&gt;
+
+---
+# Special functions
+Everything that happens is a function call, really?
+
+```r
+1 + 2
+```
+
+```
+## [1] 3
+```
+
+```r
+`+`(1,2)
+```
+
+```
+## [1] 3
+```
+
+```r
+`+`
+```
+
+```
+## function (e1, e2)  .Primitive("+")
+```
+
+---
+Remarks:
+* The `+` is a `.Primitive` function, it is implemented in `C` and is particularly efficient.
+* `+` is an **infix** function: the name appears between two arguments. Other infix functions comprises `=`, `&lt;-`, `+`, `-`, `*`, `/`, `!`, `&lt;`, `%*%`, `&amp;`, `|`,...
+* You can create your own infix functions using `%operator%` pattern (e.g. `%&gt;%` `magrittr` pipe operator).
+* It is licit but bad practice to redefine already existing infix functions as they are not reserved words
+
+
+```r
+`+` &lt;- function(x, y) 10 * x * y
+1 + 2
+```
+
+```
+## [1] 20
+```
+
+```r
+environment(`+`)
+```
+
+```
+## &lt;environment: R_GlobalEnv&gt;
+```
+
+```r
+base::`+`(1,2)
+```
+
+```
+## [1] 3
+```
+
+---
+# Function composition
+Everything is an object, so a function is an object too right? So you could pass an object as an argument? Yes!
+
+```r
+A &lt;- matrix(rnorm(9),nc=3)
+B &lt;- matrix(rnorm(9),nc=3)
+C &lt;- matrix(rnorm(9),nc=3)
+D &lt;- matrix(rnorm(9),nc=3)
+
+my_div(my_div(A,B),my_div(C,D))
+```
+
+```
+## Starting the division
+## Starting the division
+## Starting the division
+```
+
+```
+##             [,1]          [,2]        [,3]
+## [1,]  -4.0653184   -0.01006722 233.0078694
+## [2,]  -0.3713338 -173.79572983  -3.0677723
+## [3,] -16.3425040   -0.03543194  -0.8952081
+```
+
+This is called **nesting**.
+
+---
+You can also create intermediate objects.
+
+```r
+AB &lt;- my_div(A,B)
+```
+
+```
+## Starting the division
+```
+
+```r
+CD &lt;- my_div(C,D)
+```
+
+```
+## Starting the division
+```
+
+```r
+my_div(AB,CD)
+```
+
+```
+## Starting the division
+```
+
+```
+##             [,1]          [,2]        [,3]
+## [1,]  -4.0653184   -0.01006722 233.0078694
+## [2,]  -0.3713338 -173.79572983  -3.0677723
+## [3,] -16.3425040   -0.03543194  -0.8952081
+```
+
+---
+or a final option is to use **piping** with for example `%&gt;%` `magrittr` operator
+(which works only for one argument)
+
+```r
+library(magrittr)
+my_div(A,B) %&gt;% my_div(CD)
+```
+
+```
+## Starting the division
+## Starting the division
+```
+
+```
+##             [,1]          [,2]        [,3]
+## [1,]  -4.0653184   -0.01006722 233.0078694
+## [2,]  -0.3713338 -173.79572983  -3.0677723
+## [3,] -16.3425040   -0.03543194  -0.8952081
+```
+
+---
+# Ready to continue?
+
+&amp;nbsp;
+
+&lt;center&gt;
+&lt;iframe src="https://giphy.com/embed/xT8qBvH1pAhtfSx52U" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/baby-sleepy-face-first-xT8qBvH1pAhtfSx52U"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
+&lt;/center&gt;
+
+---
+# S3 OOP system
+* Object-oriented programming (OOP) is one of the most popular programming paradigm. 
+* The type of an object is a **class** and a function implemented for a specific class is a **method**.
+* It is mostly used for **polymorphism**: the function interface is separated from its implementation. In other words, the function behaves differently according to the class.
+* This is related to the idea of **encapsulation**: the object interface is separated from its internal structure. In other words, the user doesn't need to worry about details of an object. Encapsulation avoids spaghetti code (see [Toyota 2013 case](http://archive.wikiwix.com/cache/index2.php?url=https%3A%2F%2Fwww.usna.edu%2FAcResearch%2F_files%2Fdocuments%2FNASEC%2F2016%2FCYBER%2520-%2520Toyota%2520Unintended%2520Acceleration.pdf)).
+* `R` has several OOP systems: S3, S4, R6, ...
+* S3 OOP system is the first R OOP system, it is rather informal (easy to modify) and widespread.
+
+---
+# Example of polymorphism
+
+```r
+summary(cars$speed)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     4.0    12.0    15.0    15.4    19.0    25.0
+```
+
+```r
+summary(lm(cars$speed~cars$dist))
+```
+
+```
+## 
+## Call:
+## lm(formula = cars$speed ~ cars$dist)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.5293 -2.1550  0.3615  2.4377  6.4179 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  8.28391    0.87438   9.474 1.44e-12 ***
+## cars$dist    0.16557    0.01749   9.464 1.49e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.156 on 48 degrees of freedom
+## Multiple R-squared:  0.6511,	Adjusted R-squared:  0.6438 
+## F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.49e-12
+```
+
+---
+What is happening?
+
+```r
+sloop::s3_dispatch(summary(cars$speed))
+```
+
+```
+##    summary.double
+##    summary.numeric
+## =&gt; summary.default
+```
+
+```r
+sloop::s3_dispatch(summary(lm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; summary.lm
+##  * summary.default
+```
+
+* `*` indicates the method is defined;
+* `=&gt;` indicates the method is used.
+
+
+```r
+class(cars$speed)
+```
+
+```
+## [1] "numeric"
+```
+
+```r
+class(lm(cars$speed~cars$dist))
+```
+
+```
+## [1] "lm"
+```
+
+---
+What is happening?
+
+```r
+summary
+```
+
+```
+## function (object, ...) 
+## UseMethod("summary")
+## &lt;bytecode: 0x55a8bbc413f0&gt;
+## &lt;environment: namespace:base&gt;
+```
+
+```r
+head(summary.default)
+```
+
+```
+##                                                     
+## 1 function (object, ..., digits, quantile.type = 7) 
+## 2 {                                                 
+## 3     if (is.factor(object))                        
+## 4         return(summary.factor(object, ...))       
+## 5     else if (is.matrix(object)) {                 
+## 6         if (missing(digits))
+```
+
+```r
+head(summary.lm)
+```
+
+```
+##                                                                
+## 1 function (object, correlation = FALSE, symbolic.cor = FALSE, 
+## 2     ...)                                                     
+## 3 {                                                            
+## 4     z &lt;- object                                              
+## 5     p &lt;- z$rank                                              
+## 6     rdf &lt;- z$df.residual
+```
+
+---
+# `...`
+* Using `...` is a special argument which allows to pass any number of additional arguments.
+* You can catch it into a list:
+
+```r
+f &lt;- function(...){list(...)}
+f(a=1, b=2)
+```
+
+```
+## $a
+## [1] 1
+## 
+## $b
+## [1] 2
+```
+* It is useful for example when defining a **generic** method.
+* The role of a generic is to **dispatch**: find the specific method for a **class**.
+
+---
+* A generic is easy to create
+
+```r
+my_new_generic &lt;- function(x, ...) {
+  UseMethod("my_new_generic")
+}
+```
+* Then, you can create methods
+
+```r
+# default method
+my_new_generic.default &lt;- function(x, ...){
+  print("this is default method")
+}
+# method for object of class `lm`
+my_new_generic.lm &lt;- function(x, ...){
+  print("this is method for class `lm`")
+}
+```
+
+
+```r
+my_new_generic(cars$speed)
+```
+
+```
+## [1] "this is default method"
+```
+
+```r
+my_new_generic(lm(cars$speed~cars$dist))
+```
+
+```
+## [1] "this is method for class `lm`"
+```
+
+---
+* check the dispatch
+
+```r
+sloop::s3_dispatch(my_new_generic(cars$speed))
+```
+
+```
+##    my_new_generic.double
+##    my_new_generic.numeric
+## =&gt; my_new_generic.default
+```
+
+```r
+sloop::s3_dispatch(my_new_generic(lm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; my_new_generic.lm
+##  * my_new_generic.default
+```
+* Why are there several output when running `sloop::s3_dispatch(my_new_generic(cars$speed))`?
+
+---
+* check the dispatch
+
+```r
+sloop::s3_dispatch(my_new_generic(cars$speed))
+```
+
+```
+##    my_new_generic.double
+##    my_new_generic.numeric
+## =&gt; my_new_generic.default
+```
+
+```r
+sloop::s3_dispatch(my_new_generic(lm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; my_new_generic.lm
+##  * my_new_generic.default
+```
+* Why are there several output when running `sloop::s3_dispatch(my_new_generic(cars$speed))`?
+
+
+```r
+sloop::s3_class(cars$speed)
+```
+
+```
+## [1] "double"  "numeric"
+```
+* `cars$speed` has class "numeric" and implicit class "double" (check `typeof(cars$speed)`).
+
+
+---
+# Inheritance
+* An object can have several classes like a child has parents and ancestors. For example:
+
+```r
+class(glm(cars$speed~cars$dist))
+```
+
+```
+## [1] "glm" "lm"
+```
+* If a method is not found for the 1st class, then `R` looks for the 2nd class and so on.
+
+```r
+sloop::s3_dispatch(summary(glm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; summary.glm
+##  * summary.lm
+##  * summary.default
+```
+
+```r
+sloop::s3_dispatch(plot(glm(cars$speed~cars$dist)))
+```
+
+```
+##    plot.glm
+## =&gt; plot.lm
+##  * plot.default
+```
+
+---
+# Create your own S3 class
+* S3 is rather informal and straightforward (be careful!)
+
+```r
+set.seed(123) # for reproducibility
+image &lt;- matrix(rgamma(100, shape = 2), 10, 10)
+class(image) &lt;- "pixel"
+```
+
+* `class` is a special attribute.
+
+```r
+attributes(image)
+```
+
+```
+## $dim
+## [1] 10 10
+## 
+## $class
+## [1] "pixel"
+```
+
+---
+* Alternatively, it is neater to create a S3 object using `structure`
+
+```r
+set.seed(123) # for reproducibility
+image &lt;- structure(
+  matrix(rgamma(100, shape = 2), 10, 10),
+  class = "pixel"
+)
+```
+* There is no method yet for this class
+
+```r
+plot(image)
+```
+
+&lt;img src="lecture06_function_files/figure-html/unnamed-chunk-47-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+sloop::s3_dispatch(plot(image))
+```
+
+```
+##    plot.pixel
+## =&gt; plot.default
+```
+
+```r
+plot
+```
+
+```
+## function (x, y, ...) 
+## UseMethod("plot")
+## &lt;bytecode: 0x55a8bc0d8f38&gt;
+## &lt;environment: namespace:base&gt;
+```
+
+---
+* Generally, it is a bad practice to create methods for a generic you don't own.
+* But it is common for generics with `...` arguments such as `mean`, `sum`, `summary`, `plot`, `coefficients`, ...
+
+
+```r
+plot.pixel &lt;- function (x, ...) {
+  heatmap(x, ...)
+}
+sloop::s3_dispatch(plot(image))
+```
+
+```
+## =&gt; plot.pixel
+##  * plot.default
+```
+
+---
+* New plot for class `pixel`
+
+```r
+plot(image)
+```
+
+&lt;img src="lecture06_function_files/figure-html/unnamed-chunk-50-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+* Thanks to `...`, you can pass other arguments (be careful) (see for meaningful arguments `?heatmap`)
+
+
+```r
+plot(image, col = cm.colors(256), xlab = "x axis", ylab = "y axis")
+```
+
+&lt;img src="lecture06_function_files/figure-html/unnamed-chunk-51-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-functions.html)
+* More advanced remarks in [Advanced R](https://adv-r.hadley.nz/index.html), Chapters 6, 7 and 8 for functions, Chapters 12 to 16 for object-oriented programming.
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+&lt;a href="https://ptds.samorso.ch/"&gt;
+.white[&lt;svg viewBox="0 0 384 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z"&gt;&lt;/path&gt;&lt;/svg&gt; website]
+&lt;/a&gt;
+
+&lt;a href="https://github.com/ptds2021/"&gt;
+.white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
+&lt;/a&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
