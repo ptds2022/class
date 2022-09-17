@@ -69,9 +69,28 @@ leaflet() %>% addTiles() %>% setView(6.58455, 46.52356, zoom = 17)
 .pull-right[
 .scroll-box-5[
 * Anthropole 3741
-* Every Tuesday morning from 9 to 12. Either class or either practical.
+* Every Tuesday morning from 9 to 12. Either class or practical.
 * Verify the schedule on the course website.
 ]]
+
+---
+## Ideal schedule (every Tuesday 9 to 12)
+| Week | Date | Topic | Instructor |   
+|---|---|---|---|   
+| 1 | 20 Sep | Introduction, RMarkdown, Github | Samuel |   
+| 2 | 27 Sep | Exercise and homework 1 | Aleksandr |
+| 3 | 4 Oct | Data structures, Control structures | Samuel |
+| 4 | 11 Oct | Exercise and homework 2 | Aleksandr |
+| 5 | 18 Oct | Functions, project proposal | Samuel |
+| 6 | 25 Oct | Exercise and homework 3 | Aleksandr | 
+| 7 | 1 Nov | Group project | Aleksandr |
+| 8 | 8 Nov| Shiny app, webscraping | Samuel |
+| 9 | 15 Nov | Exercise and homework 4 | Aleksandr |
+| 10 | 22 Nov | Shiny app, R-pkg | Samuel |
+| 11 | 29 Nov | Group project | Aleksandr |
+| 12 | 6 Dec | blogdown, visualization | Samuel | 
+| 13 | 13 Dec | Group project | Aleksandr | 
+| 14 | 20 Dec | Project presentations | Samuel and Aleksandr|
 
 ---
 # Course logistic and expectation
@@ -113,8 +132,13 @@ Homeworks | 30 | 3
 * We use <img src="images/slack.png" width="200px"/> to communicate and many more
 * We use the **NEIN rule**! (No Email, only If Necessary)
 * More info at [https://ptds.samorso.ch/](https://ptds.samorso.ch/)
-* To access slack: register at [https://shiny.samorso.ch/fillingform/](https://shiny.samorso.ch/fillingform/) and wait your invitation <img src="images/qrcode_data-analytics-lab.shinyapps.io.png" width="150px"/>
+* To access slack: register at [https://shiny.samorso.ch/fillingform/](https://shiny.samorso.ch/fillingform/) and wait your invitation <img src="images/qrcode_shiny.samorso.ch.png" width="150px"/>
 
+---
+## Take 3 minutes to complete the form
+```{r echo=FALSE, fig.align='center'}
+knitr::include_url("https://shiny.samorso.ch/fillingform/")
+```
 
 ---
 class: sydney-blue, center, middle
@@ -126,7 +150,12 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("file")` website]
 </a>
 
-<a href="https://github.com/ptds2021/">
+<a href="https://github.com/ptds2022/">
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]
+
+---
+# Everything's done? Follow your first tutorial (10 minutes)
+## Make sure you have `R` and `RStudio` installed and follow the 
+## "R/RStudio installation and setup" tutorial

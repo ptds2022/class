@@ -2,7 +2,7 @@
 title: "Programming Tools in Data Science"
 subtitle: "Lecture #3: GitHub"
 author: "Samuel Orso"
-date: "4 October 2021"
+date: "20 September 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -272,3 +272,7 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]
+
+---
+# In-class exercise (10 minutes)
+Complete the exercise "The Basics of Github" (wait for your GitHub invitation).

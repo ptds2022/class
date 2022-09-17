@@ -2,7 +2,7 @@
 title: "Programming Tools in Data Science"
 subtitle: "Lecture #2: RMarkdown"
 author: "Samuel Orso"
-date: "27 September 2021"
+date: "20 September 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -63,10 +63,9 @@ knitr::include_graphics("images/rmd_new.png")
 # Important features of `markdown`
 ## 1. YAML Ain't Markup Language
 
-* Body of the document where everything
+* Head of the document where options are defined.
 * Surrounded by `---`
 * Options comprises: author, date, output format, table of content, themes, code folding, ...
-* Play with <https://data-analytics-lab.shinyapps.io/rmarkdown/>
 
 ---
 # Important features of `markdown`
@@ -89,7 +88,6 @@ knitr::include_graphics("images/rmd_new.png")
 * Cross-referencing sections using syntax `\@ref(label)`
 * Citations and bibliographies can automatically be generated with RMarkdown
 * **You can always use HTML**
-* Play with <https://data-analytics-lab.shinyapps.io/rmarkdown/>
 
 ---
 # Important features of `RMarkdown`
@@ -130,6 +128,11 @@ class: sydney-blue, center, middle
 # Play 5 minutes with `https://data-analytics-lab.shinyapps.io/rmarkdown/`
 ```{r echo=FALSE, fig.align='center', out.width=300, out.height=300}
 knitr::include_graphics("images/qrcode_data-analytics-lab.shinyapps.io.png")
+```
+
+---
+```{r echo=FALSE, fig.align='center'}
+knitr::include_url("https://data-analytics-lab.shinyapps.io/rmarkdown/")
 ```
 
 ---
@@ -194,3 +197,22 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]
+
+---
+# In-class exercise (10 minutes)
+1. Create a RMarkdown HTML document in `R` and `knit` it.
+1. Change the output format to `github_document`.
+1. Create a new header of type 2.
+1. Make a linear regression with "Sepal Length" as a response and 
+"Sepal Width" as an explanatory variable from the `iris` dataset and save the result. Highlight the code with `monochrome` style.
+1. Print the summary of the linear regression.
+1. Include the QQplot from the linear regression. Change to filled dots.
+1. Print the head of the `iris` dataset with `kable`.
+1. Remove the `.` from the lables (click [here](https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#change-column-names))
+1. Install `kableExtra`. And perform the examples shown in the slides with `iris` dataset.
+
+---
+# To go further
+- [R Markdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/) by Yihui Xie, Christophe Dervieux, Emily Riederer
+- [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) by Yihui Xie, J. J. Allaire, Garrett Grolemund
+- Visit [bookdown.org]()
