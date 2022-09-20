@@ -43,7 +43,7 @@ src="https://www.youtube.com/embed/Tzin1DgexlE">
 * exploit data structures to appropriately manage data, computer memory and computations;
 * data manipulation through controls, instructions, and tailored functions;
 * develop new software tools including functions, Shiny applications, and packages;
-* manage the software development process including version control, documentation (with embedded code), and dissemination for other users.
+* manage the software development process including version control, documentation (with embed code), and dissemination for other users.
 
 ---
 # General goals

@@ -178,12 +178,6 @@ knitr::include_graphics("images/gif_inf_m_r.gif")
 ```
 
 ---
-# To go further
-* <https://www.markdownguide.org/>
-* <https://rmarkdown.rstudio.com/>
-* [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)
-
----
 class: sydney-blue, center, middle
 
 # Question ?
@@ -200,7 +194,7 @@ class: sydney-blue, center, middle
 
 ---
 # In-class exercise (10 minutes)
-1. Create a RMarkdown HTML document in `R` and `knit` it.
+1. Create a RMarkdown HTML document in `RStudio` and "`knit`" it.
 1. Change the output format to `github_document`.
 1. Create a new header of type 2.
 1. Make a linear regression with "Sepal Length" as a response and 
@@ -213,6 +207,8 @@ class: sydney-blue, center, middle
 
 ---
 # To go further
+- <https://www.markdownguide.org/>
+- <https://rmarkdown.rstudio.com/>
 - [R Markdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/) by Yihui Xie, Christophe Dervieux, Emily Riederer
 - [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) by Yihui Xie, J. J. Allaire, Garrett Grolemund
 - Visit [bookdown.org]()
