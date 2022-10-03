@@ -429,7 +429,7 @@ The bootstrap is a well-known method in statistics since Efron's seminal paper i
 
 ---
 # In-class exercise (10 minutes)
-1. Load a dataset using `data(ToothGrow)`. Create 
+1. Load a dataset using `data("ToothGrowth")`. Create 
 two vectors of tooth lengths corresponding to
 `OJ` and `VC` factors respectively. Compute the
 mean of each vector.
