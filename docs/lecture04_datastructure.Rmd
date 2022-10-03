@@ -2,7 +2,7 @@
 title: "Programming Tools in Data Science"
 subtitle: "Lecture #4: Data Structure"
 author: "Samuel Orso"
-date: "4 October 2021"
+date: "4 October 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -44,7 +44,7 @@ knitr::include_graphics(path="images/extending_r.png")
 * `R` is popular for data science (in competition with Python);
 * `R` is open-source;
 * `R` is an interpreted language;
-* `R` is highly extensible via packages (18312 available on CRAN); 
+* `R` is highly extensible via packages (18754 available on CRAN); 
 * `R` can be interfaced with other languages (C++, Fortran, ...).
 
 ---
@@ -144,7 +144,7 @@ third layer: `C` function `Cdqrls`
 SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
 ```
 
-`SEXP` is the datatype for a generic `R` object
+(`SEXP` is the datatype for a generic `R` object).
 
 Source: excellent post [A Deep Dive Into How R Fits a Linear Model](https://madrury.github.io/jekyll/update/statistics/2016/07/20/lm-in-R.html), `Cdqrls` [source code](https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c)
 
@@ -174,14 +174,18 @@ knitr::include_graphics("images/lego-3388163_1280.png")
 - **Integer**: followed by `L`; examples: 2L, 12L.
 - **Logical** (or boolean); written in full `TRUE`, `FALSE`, or in short `T`, `F`.
 - **Character** (or strings); examples: `"a"`, `"Bonjour"`.
-- (**Complex** (complex number))
+- (**Complex** (complex number) and **Raw**)
+
+Note that:
+- Integer and double are of type **numeric**.
+- All these types are **atomic vector**, a fundamental data structure.
 
 ---
 # Reserved words
 * **Missing values** `NA` (Not Available) can have primary types:  `NA_real_`, `NA_integer_`, `NA` (logical by default), `NA_complex_`, `NA_character_`.
 * For real and complex numbers, `R` has also `Inf` for infinity and `NaN` (Not a Number).
 * `NULL` for a null object.
-* builtin functions (seen later)
+* For control structures: `if`, `else`, `repeat`, `while`, `function`, `for`, `in`, `next`, `break`
 
 ---
 # `typeof`
@@ -433,6 +437,11 @@ rep(c(1,2), times = 2, each = 2)
 ```
 
 ---
+# In-class exercise (3 minutes)
+1. Let `x <- 3 * seq_len(4)`. Select the 2nd element of `x` with (a) positive, (b) negative and (c) logical indices.
+2. Sort `x` in descending order using (a) a sequence of positive indices and (b) the `sort` function.  
+
+---
 # Matrix
 <center>
 <iframe src="https://giphy.com/embed/sULKEgDMX8LcI" width="480" height="225" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/sci-fi-matrix-cyberpunk-sULKEgDMX8LcI">via GIPHY</a></p></center>
@@ -576,6 +585,24 @@ tennis[c("height", "date_of_birth")]
 # Like a matrix
 tennis[, c("height", "date_of_birth")]
 ```
+
+---
+# In-class exercise (5 minutes)
+Using the following code:
+```{r, eval=F}
+set.seed(1)
+A <- matrix(rnorm(20), ncol = 2)
+B <- matrix(rnorm(20), ncol = 2)
+```
+1. What are the dimensions of $A$ and $B$? Compute $A^TB$ and $AB^T$.
+2. Combine $A$ and $B$ row-wise to create $C$.
+3. Let $D$ be a copy of $C$ centered around the mean
+columnwise.
+The unbiased estimator of the covariance matrix of
+$C$ is defined as $$\frac{1}{n-1}D^TD,$$
+where $n$ is the number of rows of $D$.
+Compute this quantity.
+Compare with `cov(C)`.
 
 ---
 # To go further

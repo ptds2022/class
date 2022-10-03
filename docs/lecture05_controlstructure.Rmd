@@ -2,7 +2,7 @@
 title: "Programming Tools in Data Science"
 subtitle: "Lecture #5: Control Structure"
 author: "Samuel Orso"
-date: "11 October 2021"
+date: "4 October 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -224,7 +224,7 @@ switch (EXPR, #<<
 ```
 
 - `EXPR` an expression evaluating to a number or a character string.
-- `option` are altrnatives to be match with `EXPR`.
+- `option` are alternatives to be match with `EXPR`.
 - `R` allows for a `default statement`, which will be returned when none of the listed options are matched.
 
 ---
@@ -416,3 +416,30 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]
+
+---
+# Bootstrap
+The bootstrap is a well-known method in statistics since Efron's seminal paper in 1979. The bootstrap is easy to implement and straightforward to use. There exist many different schemes for the bootstrap, we present the simplest form:
+
+1.  Compute the statistic on the sample: $\hat{\theta} = g(x_1,\dots,x_n)$.
+2.  Create a new sample $x_1^\ast,\dots,x_n^\ast$ by drawing data from the original sample **at random with replacement**. This new sample is called a *bootstrapped sample*.
+3.  Compute the statistic on the bootstrapped sample: $\hat{\theta}^\ast = g(x_1^\ast,\dots,x_n^\ast)$.
+4.  Repeat 2. and 3. $B$ times.
+5.  Compute the unbiased estimator of the variance: $$\frac{1}{B-1}\sum_{b=1}(\hat{\theta}^\ast_{b}-\hat{\theta})^2.$$
+
+---
+# In-class exercise (10 minutes)
+1. Load a dataset using `data(ToothGrow)`. Create 
+two vectors of tooth lengths corresponding to
+`OJ` and `VC` factors respectively. Compute the
+mean of each vector.
+2. Create a bootstrap distribution for each vector
+using $B=10,000$ and a for loop. Checkout
+the `sample` function for sampling at random with replacement.
+3. Using `ggplot2`, make a graph of the bootstrap
+distributions by plotting two histograms on the same plot. 
+
+---
+# For more exercises
+Try to solve the exercises [here](https://intro-to-ds.netlify.app/chapter2),
+especially the 4th one.

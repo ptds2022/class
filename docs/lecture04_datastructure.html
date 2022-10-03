@@ -4,7 +4,7 @@
     <title>Programming Tools in Data Science</title>
     <meta charset="utf-8" />
     <meta name="author" content="Samuel Orso" />
-    <meta name="date" content="2021-10-04" />
+    <meta name="date" content="2022-10-04" />
     <script src="lecture04_datastructure_files/header-attrs-2.11/header-attrs.js"></script>
     <link href="lecture04_datastructure_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script type="text/x-mathjax-config">
@@ -29,13 +29,13 @@ class: center, middle, inverse, title-slide
 # Programming Tools in Data Science
 ## Lecture #4: Data Structure
 ### Samuel Orso
-### 4 October 2021
+### 4 October 2022
 
 ---
 
 # Let's dive into `R` programming
 
-&lt;img src="images/r_programming.png" width="2263" style="display: block; margin: auto;" /&gt;
+&lt;img src="images/r_programming.png" width="1759" style="display: block; margin: auto;" /&gt;
 
 ---
 # Brief histo`R`y
@@ -53,7 +53,7 @@ class: center, middle, inverse, title-slide
 * `R` is popular for data science (in competition with Python);
 * `R` is open-source;
 * `R` is an interpreted language;
-* `R` is highly extensible via packages (18312 available on CRAN); 
+* `R` is highly extensible via packages (18754 available on CRAN); 
 * `R` can be interfaced with other languages (C++, Fortran, ...).
 
 ---
@@ -147,7 +147,7 @@ third layer: `C` function `Cdqrls`
 SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
 ```
 
-`SEXP` is the datatype for a generic `R` object
+(`SEXP` is the datatype for a generic `R` object).
 
 Source: excellent post [A Deep Dive Into How R Fits a Linear Model](https://madrury.github.io/jekyll/update/statistics/2016/07/20/lm-in-R.html), `Cdqrls` [source code](https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c)
 
@@ -173,14 +173,18 @@ Source: excellent post [A Deep Dive Into How R Fits a Linear Model](https://madr
 - **Integer**: followed by `L`; examples: 2L, 12L.
 - **Logical** (or boolean); written in full `TRUE`, `FALSE`, or in short `T`, `F`.
 - **Character** (or strings); examples: `"a"`, `"Bonjour"`.
-- (**Complex** (complex number))
+- (**Complex** (complex number) and **Raw**)
+
+Note that:
+- Integer and double are of type **numeric**.
+- All these types are **atomic vector**, a fundamental data structure.
 
 ---
 # Reserved words
 * **Missing values** `NA` (Not Available) can have primary types:  `NA_real_`, `NA_integer_`, `NA` (logical by default), `NA_complex_`, `NA_character_`.
 * For real and complex numbers, `R` has also `Inf` for infinity and `NaN` (Not a Number).
 * `NULL` for a null object.
-* builtin functions (seen later)
+* For control structures: `if`, `else`, `repeat`, `while`, `function`, `for`, `in`, `next`, `break`
 
 ---
 # `typeof`
@@ -660,6 +664,11 @@ rep(c(1,2), times = 2, each = 2)
 ```
 
 ---
+# In-class exercise (3 minutes)
+1. Let `x &lt;- 3 * seq_len(4)`. Select the 2nd element of `x` with (a) positive, (b) negative and (c) logical indices.
+2. Sort `x` in descending order using (a) a sequence of positive indices and (b) the `sort` function.  
+
+---
 # Matrix
 &lt;center&gt;
 &lt;iframe src="https://giphy.com/embed/sULKEgDMX8LcI" width="480" height="225" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/sci-fi-matrix-cyberpunk-sULKEgDMX8LcI"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;&lt;/center&gt;
@@ -959,6 +968,25 @@ tennis[, c("height", "date_of_birth")]
 ## Daniil Medvedev   1.98 11 February 1996
 ## Dominic Thiem     1.85 3 September 1993
 ```
+
+---
+# In-class exercise (5 minutes)
+Using the following code:
+
+```r
+set.seed(1)
+A &lt;- matrix(rnorm(20), ncol = 2)
+B &lt;- matrix(rnorm(20), ncol = 2)
+```
+1. What are the dimensions of `\(A\)` and `\(B\)`? Compute `\(A^TB\)` and `\(AB^T\)`.
+2. Combine `\(A\)` and `\(B\)` row-wise to create `\(C\)`.
+3. Let `\(D\)` be a copy of `\(C\)` centered around the mean
+columnwise.
+The unbiased estimator of the covariance matrix of
+`\(C\)` is defined as `$$\frac{1}{n-1}D^TD,$$`
+where `\(n\)` is the number of rows of `\(D\)`.
+Compute this quantity.
+Compare with `cov(C)`.
 
 ---
 # To go further

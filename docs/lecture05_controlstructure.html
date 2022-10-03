@@ -4,7 +4,7 @@
     <title>Programming Tools in Data Science</title>
     <meta charset="utf-8" />
     <meta name="author" content="Samuel Orso" />
-    <meta name="date" content="2021-10-11" />
+    <meta name="date" content="2022-10-04" />
     <script src="lecture05_controlstructure_files/header-attrs-2.11/header-attrs.js"></script>
     <link href="lecture05_controlstructure_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script type="text/x-mathjax-config">
@@ -29,7 +29,7 @@ class: center, middle, inverse, title-slide
 # Programming Tools in Data Science
 ## Lecture #5: Control Structure
 ### Samuel Orso
-### 11 October 2021
+### 4 October 2022
 
 ---
 
@@ -262,7 +262,7 @@ x &lt;- 1:10
 ```
 
 - `EXPR` an expression evaluating to a number or a character string.
-- `option` are altrnatives to be match with `EXPR`.
+- `option` are alternatives to be match with `EXPR`.
 - `R` allows for a `default statement`, which will be returned when none of the listed options are matched.
 
 ---
@@ -445,13 +445,13 @@ microbenchmark::microbenchmark(
 ```
 ## Unit: microseconds
 ##                                                       expr      min        lq
-##  for (i in 1:ncol(A)) {     A_colmean[i] &lt;- mean(A[, i]) } 1900.742 1955.2695
-##                           apply(A, MARGIN = 2, FUN = mean)   22.415   27.5850
-##                                                colMeans(A)    3.182    4.8815
+##  for (i in 1:ncol(A)) {     A_colmean[i] &lt;- mean(A[, i]) } 1943.520 2070.5700
+##                           apply(A, MARGIN = 2, FUN = mean)   23.721   29.5635
+##                                                colMeans(A)    4.166    5.1565
 ##        mean    median        uq      max neval cld
-##  2303.00307 2070.2480 2523.8040 5180.620   100   b
-##    36.95135   36.2295   41.7335   80.579   100  a 
-##     9.31861    8.4610   11.9490   49.984   100  a
+##  2347.09488 2241.1720 2454.7465 5566.129   100   b
+##    38.50629   38.4520   45.9900   68.306   100  a 
+##     9.27892    7.2815   12.4345   47.879   100  a
 ```
 
 * Lesson: always try to use `R` builtin functions as they are usually efficient
@@ -518,6 +518,33 @@ class: sydney-blue, center, middle
 .white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
 &lt;/a&gt;
 ]
+
+---
+# Bootstrap
+The bootstrap is a well-known method in statistics since Efron's seminal paper in 1979. The bootstrap is easy to implement and straightforward to use. There exist many different schemes for the bootstrap, we present the simplest form:
+
+1.  Compute the statistic on the sample: `\(\hat{\theta} = g(x_1,\dots,x_n)\)`.
+2.  Create a new sample `\(x_1^\ast,\dots,x_n^\ast\)` by drawing data from the original sample **at random with replacement**. This new sample is called a *bootstrapped sample*.
+3.  Compute the statistic on the bootstrapped sample: `\(\hat{\theta}^\ast = g(x_1^\ast,\dots,x_n^\ast)\)`.
+4.  Repeat 2. and 3. `\(B\)` times.
+5.  Compute the unbiased estimator of the variance: `$$\frac{1}{B-1}\sum_{b=1}(\hat{\theta}^\ast_{b}-\hat{\theta})^2.$$`
+
+---
+# In-class exercise (10 minutes)
+1. Load a dataset using `data(ToothGrow)`. Create 
+two vectors of tooth lengths corresponding to
+`OJ` and `VC` factors respectively. Compute the
+mean of each vector.
+2. Create a bootstrap distribution for each vector
+using `\(B=10,000\)` and a for loop. Checkout
+the `sample` function for sampling at random with replacement.
+3. Using `ggplot2`, make a graph of the bootstrap
+distributions by plotting two histograms on the same plot. 
+
+---
+# For more exercises
+Try to solve the exercises [here](https://intro-to-ds.netlify.app/chapter2),
+especially the 4th one.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
