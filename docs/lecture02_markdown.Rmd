@@ -187,7 +187,7 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("file")` website]
 </a>
 
-<a href="https://github.com/ptds2021/">
+<a href="https://github.com/ptds2022/">
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]

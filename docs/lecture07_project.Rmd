@@ -1,8 +1,8 @@
 ---
 title: "Programming Tools in Data Science"
-subtitle: "Lecture #6: Project proposal"
+subtitle: "Project proposal"
 author: "Samuel Orso"
-date: "18 October 2021"
+date: "18 October 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -38,6 +38,19 @@ class: sydney-blue, center, middle
 # 50% of your grade!
 
 ---
+class: sydney-blue, center, middle
+
+# Examples of 2021
+
+---
+
+
+---
+class: sydney-blue, center, middle
+
+# Examples of 2020
+
+---
 # Example: nutrition calculator
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/mcdonald.png")
@@ -54,6 +67,11 @@ knitr::include_graphics("images/movie.png")
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/beer.png")
 ```
+
+---
+class: sydney-blue, center, middle
+
+# Further examples
 
 ---
 # Example: covid dashboard 
@@ -83,7 +101,7 @@ Source of inspiration:
 
 ---
 # Proposal
-You must submit a project proposal for reviewing by **2021-11-07 11:59pm**. The proposal must comprise:
+You must submit a project proposal for reviewing by **2022-11-07 11:59pm**. The proposal must comprise:
 1. **Goals and impacts**: describe briefly the rationale of your project, you overall objectives and potential impacts.   
 2. **Plan**: detail your approach and your specific objectives:
   + Explain the methods (`R` packages, ...) to be used and the methods to be developped. Give potential

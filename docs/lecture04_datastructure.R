@@ -4,7 +4,7 @@
 x <- 3 * seq_len(4)
 x[2]
 x[-c(1,3,4)]
-x[c(FALSE, TRUE, FALSE, FALSE)]
+x[c(F, T, FALSE, FALSE)]
 
 # 2. 
 x[length(x):1]

@@ -462,7 +462,7 @@ rep(c(1,2), times = 2, each = 2)
 
 ---
 # Common matrix operations
-* Verify is `M` is a matrix: `is.matrix(M)`
+* Verify `M` is a matrix: `is.matrix(M)`
 * Return the dimensions of `M`: `dim(M)` or `nrow(M)` and `ncol(M)`
 * Matrix transpose: `t(M)`
 * Elementwise multiplication (assume correct dimension): `A * B`
@@ -620,7 +620,7 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("file")` website]
 </a>
 
-<a href="https://github.com/ptds2021/">
+<a href="https://github.com/ptds2022/">
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]

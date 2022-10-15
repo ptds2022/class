@@ -1,8 +1,8 @@
 ---
 title: "Programming Tools in Data Science"
-subtitle: "Lecture #10: webscraping with R"
+subtitle: "Lecture #7: webscraping with R"
 author: "Samuel Orso"
-date: "22 November 2021"
+date: "18 October 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -30,7 +30,7 @@ url <- "https://ptds.samorso.ch/lectures/"
 read_html(url) %>%
   html_table() %>%
   .[[1]] %>% 
-  .[17:18,] %>%
+  .[5:7,] %>%
   kableExtra::kable()
 ```
 
@@ -457,19 +457,6 @@ knitr::include_graphics("images/functions_and_classes.png")
 ---
 class: sydney-blue, center, middle
 
-# Demo
-
----
-# To go further
-* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-web-scraping.html)
-* <https://github.com/yusuzech/r-web-scraping-cheat-sheet/>
-* Want to build your own R API wrapper? Have a look at <https://colinfay.me/build-api-wrapper-package-r/> and <https://cran.r-project.org/web/packages/httr/vignettes/api-packages.html>
-* [Datacamp](https://www.datacamp.com/courses/web-scraping-in-r) class on webscraping with R
-* [Automated Data Collection with R: A Practical Guide to Web Scraping and Text Mining](https://www.wiley.com/en-us/Automated+Data+Collection+with+R%3A+A+Practical+Guide+to+Web+Scraping+and+Text+Mining-p-9781118834817)
-
----
-class: sydney-blue, center, middle
-
 # Question ?
 
 .pull-down[
@@ -481,3 +468,16 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]
+
+---
+# In-class exercises (10 min)
+* Play with [CSS Diner](https://flukeout.github.io/)
+* Try this [workflow](https://smac-group.github.io/ds/section-web-scraping.html#section-workflow) 
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-web-scraping.html)
+* <https://github.com/yusuzech/r-web-scraping-cheat-sheet/>
+* Want to build your own R API wrapper? Have a look at <https://colinfay.me/build-api-wrapper-package-r/> and <https://cran.r-project.org/web/packages/httr/vignettes/api-packages.html>
+* [Datacamp](https://www.datacamp.com/courses/web-scraping-in-r) class on webscraping with R
+* [Automated Data Collection with R: A Practical Guide to Web Scraping and Text Mining](https://www.wiley.com/en-us/Automated+Data+Collection+with+R%3A+A+Practical+Guide+to+Web+Scraping+and+Text+Mining-p-9781118834817)
