@@ -43,6 +43,16 @@ class: sydney-blue, center, middle
 # Examples of 2021
 
 ---
+# Example: HEC Time Table
+```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
+knitr::include_graphics("images/timetable.png")
+```
+
+---
+# Example: industrial production controlling mechanism
+```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
+knitr::include_graphics("images/nestle.png")
+```
 
 
 ---
@@ -94,6 +104,7 @@ knitr::include_url("https://connect.thinkr.fr/hexmake/")
 Source of inspiration:
 * <https://www.r-bloggers.com/>
 * <https://shiny.rstudio.com/gallery/#user-showcase>
+* <https://www.rstudio.com/blog/winners-of-the-3rd-annual-shiny-contest/>
 * <https://blog.rstudio.com/2019/04/05/first-shiny-contest-winners/>
 * <https://blog.rstudio.com/2020/07/13/winners-of-the-2nd-shiny-contest/>
 * <https://attalitech.com/#portfolio>
@@ -104,13 +115,13 @@ Source of inspiration:
 You must submit a project proposal for reviewing by **2022-11-07 11:59pm**. The proposal must comprise:
 1. **Goals and impacts**: describe briefly the rationale of your project, you overall objectives and potential impacts.   
 2. **Plan**: detail your approach and your specific objectives:
-  + Explain the methods (`R` packages, ...) to be used and the methods to be developped. Give potential
+  + Explain the methods (`R` packages, ...) to be used and the methods to be developed. Give potential
   + Explain existing sources of inspirations (other classes, stackoverflow, R-blogger, blogs, ...) and the potential overlaps with your project.
   + Explain your data collection strategy, the risks as well as possible alternative strategies.
 
 ---
-3. **Timeline and milestones**: describe the timeline of your project and indicate key intermediary goals in a Gantt chart (see [this package](https://github.com/giocomai/ganttrify) for example).
-4. **Management plan**: explain how you plan to collaborate (weekly meeting on Zoom, ...) and indicate responsabilities (each member of the team should be at least responsible for one part of the project).
+3. **Timeline and milestones**: describe the time line of your project and indicate key intermediary goals in a Gantt chart (see [this package](https://github.com/giocomai/ganttrify) for example).
+4. **Management plan**: explain how you plan to collaborate (weekly meeting on Zoom, ...) and indicate responsibilities (each member of the team should be at least responsible for one part of the project).
 
 ---
 Gantt chart example
