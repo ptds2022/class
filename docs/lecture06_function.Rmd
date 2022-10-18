@@ -1,6 +1,6 @@
 ---
 title: "Programming Tools in Data Science"
-subtitle: "Lecture #6: Function 1"
+subtitle: "Lecture #6: Function I"
 author: "Samuel Orso"
 date: "18 October 2022"
 output:
@@ -79,6 +79,15 @@ formals(my_div)
 body(my_div)
 environment(my_div)
 ```
+
+---
+# Note on the example
+* The following implementation is also valid.
+```{r}
+my_div <- function (numerator, denominator) numerator / denominator
+```
+* Curly brackets would be needed if the body was taking more lines.
+* If `return` is not specified, `R` returns the value of the last evaluated expression by default.
 
 ---
 # Arguments
@@ -481,7 +490,7 @@ f1(1)()
 * How would you usually write these codes?
 ```{r, eval=F}
 `+`(1, `*`(2, 3))
-`*`(1, `+`(2, 3))
+`*`(3, `+`(2, 1))
 ```
 
 * How could you make this function call easier to read?

@@ -27,7 +27,7 @@
 class: center, middle, inverse, title-slide
 
 # Programming Tools in Data Science
-## Lecture #6: Function 1
+## Lecture #6: Function I
 ### Samuel Orso
 ### 18 October 2022
 
@@ -142,6 +142,16 @@ environment(my_div)
 ```
 ## &lt;environment: R_GlobalEnv&gt;
 ```
+
+---
+# Note on the example
+* The following implementation is also valid.
+
+```r
+my_div &lt;- function (numerator, denominator) numerator / denominator
+```
+* Curly brackets would be needed if the body was taking more lines.
+* If `return` is not specified, `R` returns the value of the last evaluated expression by default.
 
 ---
 # Arguments
@@ -590,7 +600,7 @@ f()
 ```
 
 ```
-## &lt;environment: 0x555c435584f0&gt;
+## &lt;environment: 0x562dba2a1b58&gt;
 ```
 
 ```r
@@ -598,7 +608,7 @@ f()
 ```
 
 ```
-## &lt;environment: 0x555c435a6ae8&gt;
+## &lt;environment: 0x562dba2f3f90&gt;
 ```
 
 * **package**: when you attach a package with `library(pkg)`, the package becomes a parent of the global environment.
@@ -722,10 +732,10 @@ my_div(my_div(A,B),my_div(C,D))
 ```
 
 ```
-##             [,1]        [,2]       [,3]
-## [1,]  0.03040937 -0.03612299  2.0163627
-## [2,]  0.11512883 -9.02747834 -0.9142334
-## [3,] 13.99491731 -1.41293593 -5.4982170
+##             [,1]       [,2]       [,3]
+## [1,] -17.3282556 -1.7437835  3.1119714
+## [2,]   0.1501181  0.1035578 -1.6677077
+## [3,] -22.3063650 -1.1971088  0.3421342
 ```
 
 This is called **nesting**.
@@ -758,10 +768,10 @@ my_div(AB,CD)
 ```
 
 ```
-##             [,1]        [,2]       [,3]
-## [1,]  0.03040937 -0.03612299  2.0163627
-## [2,]  0.11512883 -9.02747834 -0.9142334
-## [3,] 13.99491731 -1.41293593 -5.4982170
+##             [,1]       [,2]       [,3]
+## [1,] -17.3282556 -1.7437835  3.1119714
+## [2,]   0.1501181  0.1035578 -1.6677077
+## [3,] -22.3063650 -1.1971088  0.3421342
 ```
 
 ---
@@ -779,10 +789,10 @@ my_div(A,B) %&gt;% my_div(CD)
 ```
 
 ```
-##             [,1]        [,2]       [,3]
-## [1,]  0.03040937 -0.03612299  2.0163627
-## [2,]  0.11512883 -9.02747834 -0.9142334
-## [3,] 13.99491731 -1.41293593 -5.4982170
+##             [,1]       [,2]       [,3]
+## [1,] -17.3282556 -1.7437835  3.1119714
+## [2,]   0.1501181  0.1035578 -1.6677077
+## [3,] -22.3063650 -1.1971088  0.3421342
 ```
 
 ---
@@ -818,7 +828,7 @@ f1(1)()
 
 ```r
 `+`(1, `*`(2, 3))
-`*`(1, `+`(2, 3))
+`*`(3, `+`(2, 1))
 ```
 
 * How could you make this function call easier to read?

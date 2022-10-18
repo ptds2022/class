@@ -43,17 +43,16 @@ class: sydney-blue, center, middle
 # Examples of 2021
 
 ---
-# Example: HEC Time Table
+# HEC Time Table
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/timetable.png")
 ```
 
 ---
-# Example: industrial production controlling mechanism
+# Industrial production controlling mechanism
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/nestle.png")
 ```
-
 
 ---
 class: sydney-blue, center, middle
@@ -61,19 +60,19 @@ class: sydney-blue, center, middle
 # Examples of 2020
 
 ---
-# Example: nutrition calculator
+# Nutrition calculator
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/mcdonald.png")
 ```
 
 ---
-# Example: movie recommandation
+# Movie recommandation
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/movie.png")
 ```
 
 ---
-# Example: beer recommandation
+# Beer recommandation
 ```{r,echo=FALSE,out.height="90%",out.width="90%",fig.align='center'}
 knitr::include_graphics("images/beer.png")
 ```
@@ -84,7 +83,7 @@ class: sydney-blue, center, middle
 # Further examples
 
 ---
-# Example: covid dashboard 
+# Covid dashboard 
 
 ```{r,echo=FALSE}
 knitr::include_url("https://infocovid.smc.unige.ch/")
@@ -93,7 +92,7 @@ knitr::include_url("https://infocovid.smc.unige.ch/")
 .right[<https://infocovid.smc.unige.ch/>]
 
 ---
-# Example: hexmaker
+# Hexmaker
 ```{r,echo=FALSE}
 knitr::include_url("https://connect.thinkr.fr/hexmake/")
 ```

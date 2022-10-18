@@ -1,8 +1,8 @@
 ---
 title: "Programming Tools in Data Science"
-subtitle: "Lecture #6: Function 1"
+subtitle: "Lecture #8: Function II"
 author: "Samuel Orso"
-date: "18 October 2022"
+date: "8 November 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
