@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Tools in Data Science</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Orso" />
+    <meta name="date" content="2022-11-08" />
+    <script src="lecture08_function_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture08_function_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programming Tools in Data Science
+## Lecture #8: Function II
+### Samuel Orso
+### 8 November 2022
+
+---
+
+# Function
+&lt;img src="images/lego-674354_1280.jpg" width="600" height="400" style="display: block; margin: auto;" /&gt;
+
+---
+# ''Everything is a function call''
+- A function has three components: **arguments**, a **body** and an **environment**.
+- Signalling conditions: **errors** (sever problem), **warnings** (mild problem), **messages** (informative).
+- Lexical scoping: how to find a value associated with a name (**dynamic lookup** and **name masking**).
+- Environments (**current**, **global**, **empty**, **execution**,  **package**).
+- Function composition through **nesting** or **piping**.   
+
+---
+# Ready to continue?
+
+&amp;nbsp;
+
+&lt;center&gt;
+&lt;iframe src="https://giphy.com/embed/xT8qBvH1pAhtfSx52U" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen&gt;&lt;/iframe&gt;&lt;p&gt;&lt;a href="https://giphy.com/gifs/baby-sleepy-face-first-xT8qBvH1pAhtfSx52U"&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
+&lt;/center&gt;
+
+---
+# S3 OOP system
+* Object-oriented programming (OOP) is one of the most popular programming paradigm. 
+* The type of an object is a **class** and a function implemented for a specific class is a **method**.
+* It is mostly used for **polymorphism**: the function interface is separated from its implementation. In other words, the function behaves differently according to the class.
+* This is related to the idea of **encapsulation**: the object interface is separated from its internal structure. In other words, the user doesn't need to worry about details of an object. Encapsulation avoids spaghetti code (see [Toyota 2013 case](http://archive.wikiwix.com/cache/index2.php?url=https%3A%2F%2Fwww.usna.edu%2FAcResearch%2F_files%2Fdocuments%2FNASEC%2F2016%2FCYBER%2520-%2520Toyota%2520Unintended%2520Acceleration.pdf)).
+* `R` has several OOP systems: S3, S4, R6, ...
+* S3 OOP system is the first R OOP system, it is rather informal (easy to modify) and widespread.
+
+---
+# Example of polymorphism
+
+```r
+summary(cars$speed)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     4.0    12.0    15.0    15.4    19.0    25.0
+```
+
+```r
+summary(lm(cars$speed~cars$dist))
+```
+
+```
+## 
+## Call:
+## lm(formula = cars$speed ~ cars$dist)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.5293 -2.1550  0.3615  2.4377  6.4179 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  8.28391    0.87438   9.474 1.44e-12 ***
+## cars$dist    0.16557    0.01749   9.464 1.49e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.156 on 48 degrees of freedom
+## Multiple R-squared:  0.6511,	Adjusted R-squared:  0.6438 
+## F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.49e-12
+```
+
+---
+What is happening?
+
+```r
+sloop::s3_dispatch(summary(cars$speed))
+```
+
+```
+##    summary.double
+##    summary.numeric
+## =&gt; summary.default
+```
+
+```r
+sloop::s3_dispatch(summary(lm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; summary.lm
+##  * summary.default
+```
+
+* `*` indicates the method is defined;
+* `=&gt;` indicates the method is used.
+
+
+```r
+class(cars$speed)
+```
+
+```
+## [1] "numeric"
+```
+
+```r
+class(lm(cars$speed~cars$dist))
+```
+
+```
+## [1] "lm"
+```
+
+---
+What is happening?
+
+```r
+summary
+```
+
+```
+## function (object, ...) 
+## UseMethod("summary")
+## &lt;bytecode: 0x5636d7cd18e8&gt;
+## &lt;environment: namespace:base&gt;
+```
+
+```r
+head(summary.default)
+```
+
+```
+##                                                     
+## 1 function (object, ..., digits, quantile.type = 7) 
+## 2 {                                                 
+## 3     if (is.factor(object))                        
+## 4         return(summary.factor(object, ...))       
+## 5     else if (is.matrix(object)) {                 
+## 6         if (missing(digits))
+```
+
+```r
+head(summary.lm)
+```
+
+```
+##                                                                
+## 1 function (object, correlation = FALSE, symbolic.cor = FALSE, 
+## 2     ...)                                                     
+## 3 {                                                            
+## 4     z &lt;- object                                              
+## 5     p &lt;- z$rank                                              
+## 6     rdf &lt;- z$df.residual
+```
+
+---
+# `...`
+* Using `...` is a special argument which allows to pass any number of additional arguments.
+* You can catch it into a list:
+
+```r
+f &lt;- function(...){list(...)}
+f(a=1, b=2)
+```
+
+```
+## $a
+## [1] 1
+## 
+## $b
+## [1] 2
+```
+* It is useful for example when defining a **generic** method.
+* The role of a generic is to **dispatch**: find the specific method for a **class**.
+
+---
+* A generic is easy to create
+
+```r
+my_new_generic &lt;- function(x, ...) {
+  UseMethod("my_new_generic")
+}
+```
+* Then, you can create methods
+
+```r
+# default method
+my_new_generic.default &lt;- function(x, ...){
+  print("this is default method")
+}
+# method for object of class `lm`
+my_new_generic.lm &lt;- function(x, ...){
+  print("this is method for class `lm`")
+}
+```
+
+
+```r
+my_new_generic(cars$speed)
+```
+
+```
+## [1] "this is default method"
+```
+
+```r
+my_new_generic(lm(cars$speed~cars$dist))
+```
+
+```
+## [1] "this is method for class `lm`"
+```
+
+---
+* check the dispatch
+
+```r
+sloop::s3_dispatch(my_new_generic(cars$speed))
+```
+
+```
+##    my_new_generic.double
+##    my_new_generic.numeric
+## =&gt; my_new_generic.default
+```
+
+```r
+sloop::s3_dispatch(my_new_generic(lm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; my_new_generic.lm
+##  * my_new_generic.default
+```
+* Why are there several output when running `sloop::s3_dispatch(my_new_generic(cars$speed))`?
+
+---
+* check the dispatch
+
+```r
+sloop::s3_dispatch(my_new_generic(cars$speed))
+```
+
+```
+##    my_new_generic.double
+##    my_new_generic.numeric
+## =&gt; my_new_generic.default
+```
+
+```r
+sloop::s3_dispatch(my_new_generic(lm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; my_new_generic.lm
+##  * my_new_generic.default
+```
+* Why are there several output when running `sloop::s3_dispatch(my_new_generic(cars$speed))`?
+
+
+```r
+sloop::s3_class(cars$speed)
+```
+
+```
+## [1] "double"  "numeric"
+```
+* `cars$speed` has class "numeric" and implicit class "double" (check `typeof(cars$speed)`).
+
+
+---
+# Inheritance
+* An object can have several classes like a child has parents and ancestors. For example:
+
+```r
+class(glm(cars$speed~cars$dist))
+```
+
+```
+## [1] "glm" "lm"
+```
+* If a method is not found for the 1st class, then `R` looks for the 2nd class and so on.
+
+```r
+sloop::s3_dispatch(summary(glm(cars$speed~cars$dist)))
+```
+
+```
+## =&gt; summary.glm
+##  * summary.lm
+##  * summary.default
+```
+
+```r
+sloop::s3_dispatch(plot(glm(cars$speed~cars$dist)))
+```
+
+```
+##    plot.glm
+## =&gt; plot.lm
+##  * plot.default
+```
+
+---
+# Create your own S3 class
+* S3 is rather informal and straightforward (be careful!)
+
+```r
+set.seed(123) # for reproducibility
+image &lt;- matrix(rgamma(100, shape = 2), 10, 10)
+class(image) &lt;- "pixel"
+```
+
+* `class` is a special attribute.
+
+```r
+attributes(image)
+```
+
+```
+## $dim
+## [1] 10 10
+## 
+## $class
+## [1] "pixel"
+```
+
+---
+* Alternatively, it is neater to create a S3 object using `structure`
+
+```r
+set.seed(123) # for reproducibility
+image &lt;- structure(
+  matrix(rgamma(100, shape = 2), 10, 10),
+  class = "pixel"
+)
+```
+* There is no method yet for this class
+
+```r
+plot(image)
+```
+
+&lt;img src="lecture08_function_files/figure-html/unnamed-chunk-18-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+sloop::s3_dispatch(plot(image))
+```
+
+```
+##    plot.pixel
+## =&gt; plot.default
+```
+
+```r
+plot
+```
+
+```
+## function (x, y, ...) 
+## UseMethod("plot")
+## &lt;bytecode: 0x5636dcd8cbc0&gt;
+## &lt;environment: namespace:base&gt;
+```
+
+---
+* Generally, it is a bad practice to create methods for a generic you don't own.
+* But it is common for generics with `...` arguments such as `mean`, `sum`, `summary`, `plot`, `coefficients`, ...
+
+
+```r
+plot.pixel &lt;- function (x, ...) {
+  heatmap(x, ...)
+}
+sloop::s3_dispatch(plot(image))
+```
+
+```
+## =&gt; plot.pixel
+##  * plot.default
+```
+
+---
+* New plot for class `pixel`
+
+```r
+plot(image)
+```
+
+&lt;img src="lecture08_function_files/figure-html/unnamed-chunk-21-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+* Thanks to `...`, you can pass other arguments (be careful) (see for meaningful arguments `?heatmap`)
+
+
+```r
+plot(image, col = cm.colors(256), xlab = "x axis", ylab = "y axis")
+```
+
+&lt;img src="lecture08_function_files/figure-html/unnamed-chunk-22-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# To go further
+* More details and examples in the book [An Introduction to Statistical Programming Methods with R](https://smac-group.github.io/ds/section-functions.html)
+* More advanced remarks in [Advanced R](https://adv-r.hadley.nz/index.html), Chapters 6, 7 and 8 for functions, Chapters 12 to 16 for object-oriented programming.
+
+---
+# In-class exercises (10 min)
+1. Create a `summary` function for the class `pixel`. Verify the dispatch before and after implementing the summary function.
+2. Describe the difference between `t.test()` and `t.data.frame()`. What happens if you run the following code and why?
+    
+    ```r
+    x &lt;- structure(1:10, class = "test")
+    t(x)
+    ```
+
+---
+&lt;ol start="3"&gt; 
+&lt;li&gt;Read the documentation for &lt;code class="remark-inline-code"&gt;UseMethod()&lt;/code&gt; and explain why the following code returns the results that it does.&lt;/li&gt;&lt;/ol&gt;
+
+```r
+g &lt;- function(x) {
+  x &lt;- 10
+  y &lt;- 10
+  UseMethod("g")
+}
+g.default &lt;- function(x) c(x = x, y = y)
+
+x &lt;- 1
+y &lt;- 1
+g(x)
+```
+&lt;ol start="4"&gt;&lt;li&gt; What do you expect this code to return? What does it actually return and why?&lt;/li&gt;&lt;/ol&gt;
+
+```r
+generic2 &lt;- function(x) UseMethod("generic2")
+generic2.a1 &lt;- function(x) "a1"
+generic2.a2 &lt;- function(x) "a2"
+generic2.b &lt;- function(x) {
+  class(x) &lt;- "a1"
+  NextMethod()
+}
+
+generic2(structure(list(), class = c("b", "a2")))
+```
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+&lt;a href="https://ptds.samorso.ch/"&gt;
+.white[&lt;svg viewBox="0 0 384 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z"&gt;&lt;/path&gt;&lt;/svg&gt; website]
+&lt;/a&gt;
+
+&lt;a href="https://github.com/ptds2022/"&gt;
+.white[&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; GitHub]
+&lt;/a&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
