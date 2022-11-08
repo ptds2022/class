@@ -236,7 +236,7 @@ g.default <- function(x) c(x = x, y = y)
 
 x <- 1
 y <- 1
-g(x)
+g(y)
 ```
 <ol start="4"><li> What do you expect this code to return? What does it actually return and why?</li></ol>
 ```{r, eval=F}

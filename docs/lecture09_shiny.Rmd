@@ -60,20 +60,20 @@ knitr::include_graphics("images/helloworld.png")
 ```
 
 ---
-* User interface: HTML webpage users interface with
+* User interface: HTML web page users interface with
 ```{r,eval=FALSE}
 ui
 ```
 ```{r,echo=FALSE}
 print(ui)
 ```
-* Server backend: `R` implementation and server specification
+* Server back-end: `R` implementation and server specification
 * Execute the app with `shinyApp(ui, server)`
 
 
 ---
-# Step 1: `R` code in the backend
-* Before building the interface of the web application, we need to focus on the `R` code or backend
+# Step 1: `R` code in the back-end
+* Before building the interface of the web application, we need to focus on the `R` code or back-end
 * Suppose we would like to create a histogram based on the waiting time between eruptions of the Old Faithful geyser in Yellowstone National Park (that can be found in the R dataset `faithful`)
 ```{r}
 x <- faithful[, 2] 
@@ -239,7 +239,7 @@ knitr::include_graphics("images/shiny_example.png")
 ]
 
 ---
-# Step 3: Implementing the backend
+# Step 3: Implementing the back-end
 * The goal of the server is to respond to user actions.
 * The server logic follows **reactive programming**: when an input is modified, all related output are updated.
 * The server prototype always looks like: `server <- function(input, output, session)`.
@@ -453,8 +453,8 @@ server <- function(input, output) {
 ```
 
 ---
-# Step 4: Connecting frontend and backend 
-* Simply calling `shinyApp(ui = ui, server = server)` connects the UI and the backend and run the app.
+# Step 4: Connecting frontend and back-end 
+* Simply calling `shinyApp(ui = ui, server = server)` connects the UI and the back-end and run the app.
 * More precisely, `shinyApp` creates a Shiny app object and printing it to the console run the app.
 * Alternatively, you could use `runApp`
 ```{r,eval=FALSE}
@@ -487,22 +487,7 @@ You can decide of the view you prefer <img src="images/shiny_view.png" style="he
 * See also [Shiny RStudio articles](https://shiny.rstudio.com/articles/)
 
 ---
-class: sydney-blue, center, middle
-
-# Question ?
-
-.pull-down[
-<a href="https://ptds.samorso.ch/">
-.white[`r icons::fontawesome("file")` website]
-</a>
-
-<a href="https://github.com/ptds2021/">
-.white[`r icons::fontawesome("github")` GitHub]
-</a>
-]
-
----
-# In-class exercise
+# In-class exercise (for the rest of the class)
 1. Develop the app seen in class by adding a second tab with a data table that reports summary statistics of the Old Faithful Geyser (see the UI of the [Buffon's needle example](https://smac-group.github.io/ds/section-shiny-web-applications.html#section-step-2-frontend))
 
 2. Draw the new reactive graph. Can you make the app more efficient? How?
@@ -525,3 +510,18 @@ server <- function(input, output) {
 
 shinyApp(ui, server)
 ```
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+<a href="https://ptds.samorso.ch/">
+.white[`r icons::fontawesome("file")` website]
+</a>
+
+<a href="https://github.com/ptds2021/">
+.white[`r icons::fontawesome("github")` GitHub]
+</a>
+]
