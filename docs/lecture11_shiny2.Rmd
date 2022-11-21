@@ -2,7 +2,7 @@
 title: "Programming Tools in Data Science"
 subtitle: "Lecture #11: advanced {shiny}"
 author: "Samuel Orso"
-date: "29 November 2021"
+date: "22 November 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -35,8 +35,34 @@ Modules are one of the most powerful tools for building shiny applications in a 
 
 ---
 # Motivations
-* In Shiny, functions don't fully address the problem since IDs are global: each ID must be unique!
-* Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app (if you don't recall what a namespace is, see this [link](https://adv-r.hadley.nz/environments.html#namespaces)).
+* In Shiny, functions don't fully address the problem since **IDs are global**: each ID must be unique!
+* Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app.
+
+---
+# Namespace
+* Every environment has a parent, which varies according to the order in which packages are loaded.
+* Suppose that we load a package that includes a function `var`, would the following function behaves as intended by their programmer? 
+```{r, eval=F}
+> sd
+function (x, na.rm = FALSE) 
+sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x), #<<
+    na.rm = na.rm)) 
+<bytecode: 0x561216821400>
+<environment: namespace:stats>
+```
+
+---
+# Namespace
+* Fortunately, yes.
+* The goal of namespaces is to ensure that every package works the same way regardless of what package has been attached.
+* The package environment is the external interface to a package, it provides only function that are exported.
+* The namespace is the internal interface to a package. It controls how the function finds its variables.
+
+---
+# Namespace
+* Each namespace has an imports environment controlled by the package developer (see previous lecture).
+* The parent of the imports environment is the base namespace.
+* The parent of the base namespace if the global environment.
 
 ---
 # Simple example
@@ -113,7 +139,7 @@ shinyApp(ui, server)
 * The application looks much simpler, and you could imagine adding as many modules as you like. 
 
 ---
-# Namespacing
+# Namespacing in Shiny
 * For UI module, the namespacing is explicit with calls to `ns <- NS(id)` and `ns(inputId)`.
 * For server module, the namespacing is implicit. Shiny automatically namespaces input and output following the same convention as UI module.
 * In the following example, the `input$bins` from the `sliderInput` is never used, even though it "appears" in the server module.

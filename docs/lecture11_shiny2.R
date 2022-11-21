@@ -6,35 +6,35 @@ library(bslib)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   theme = bs_theme(bootswatch = "superhero", font_scale = 1.5),
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("cells",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30),
-            textInput(inputId = "label_x",
-                      label = "Label for the x-axis:"),
-            textInput(inputId = "title",
-                      label = "Title for the graph:"),
-            actionButton(inputId = "make_graph", 
-                         label = "Make the plot!",
-                         icon = icon("drafting-compass"))
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-          tabsetPanel(
-            tabPanel("Plot", plotOutput("distPlot")),
-            tabPanel("Summary statisics", tableOutput("tabStats"))
-          )
-        )
+  
+  # Application title
+  titlePanel("Old Faithful Geyser Data"),
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("cells",
+                  "Number of bins:",
+                  min = 1,
+                  max = 50,
+                  value = 30),
+      textInput(inputId = "label_x",
+                label = "Label for the x-axis:"),
+      textInput(inputId = "title",
+                label = "Title for the graph:"),
+      actionButton(inputId = "make_graph", 
+                   label = "Make the plot!",
+                   icon = icon("drafting-compass"))
+    ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Plot", plotOutput("distPlot")),
+        tabPanel("Summary statisics", tableOutput("tabStats"))
+      )
     )
+  )
 )
 
 # Define server logic required to draw a histogram

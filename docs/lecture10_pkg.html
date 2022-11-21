@@ -4,9 +4,9 @@
     <title>Programming Tools in Data Science</title>
     <meta charset="utf-8" />
     <meta name="author" content="Samuel Orso" />
-    <meta name="date" content="2021-11-08" />
-    <script src="lecture08_pkg_files/header-attrs-2.11/header-attrs.js"></script>
-    <link href="lecture08_pkg_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <meta name="date" content="2022-11-22" />
+    <script src="lecture10_pkg_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture10_pkg_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         TeX: { equationNumbers: { autoNumber: "AMS" } },
@@ -27,23 +27,24 @@
 class: center, middle, inverse, title-slide
 
 # Programming Tools in Data Science
-## Lecture #8: R package
+## Lecture #10: R package
 ### Samuel Orso
-### 8 November 2021
+### 22 November 2022
 
 ---
 
-# R package
-* Packages provide a convenient mechanism to distribute your code.
-* It follows strict conventions (structure, folder names, ...).
-* It allows testing and better maintenance.
+# Why making an R package?
+* Distributing code with other users.
+* Forces to follow strict coding convention and work processes.
+* Stability of the code with longer term maintenance and testing.
+* Ease of use when accumulating many functions.
 
 ---
 # Setup
 * You will need (at least) the following packages:
 
 ```r
-install.packages(c("devtools", "roxygen2", "testthat", "knitr"))
+install.packages(c("devtools", "knitr", "pkgdown", "roxygen2", "testthat"))
 ```
 
 * Make sure your system is ready!
@@ -80,8 +81,8 @@ Description: More about what it does (maybe more than one line)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://https://github.com/ptds2021/pkgtest
-BugReports: https://https://github.com/ptds2021/pkgtest/issues
+URL: https://https://github.com/ptds2022/pkgtest
+BugReports: https://https://github.com/ptds2022/pkgtest/issues
 RoxygenNote: 7.1.2
 ```
 
@@ -162,6 +163,64 @@ hello &lt;- function() {
 ]
 
 ---
+# Adding data
+* It is common to add data to a package.
+* Data should be placed in `data/` folder.
+* It is recommended to add data in the form of `*.rda` file.
+* Easiest way to achieve that is using the command `usethis::use_data()`
+
+---
+# Data preparation
+* Most of the data you will want to add is not in the `*.rda` format.
+* You may have some raw data that will require some manipulation prior to obtaining the final clean data that will be made available to users.
+* It is highly recommended to keep the raw data and the code used for data wrangling. 
+* Easiest way to achieve that is by using the command `usethis::use_data_raw()`, it creates a new folder `data-raw/` which is added to `.Rbuildignore`.
+
+---
+# A simple example
+* Suppose you want to make the `supermarket_sales.csv` data available to the users.
+* One straightforward way to achieve that is with this code:
+
+```r
+## code to prepare `supermarket_sales.csv` dataset
+supermarket &lt;- read.csv(file = "data-raw/supermarket_sales.csv")
+usethis::use_data(supermarket, overwrite = TRUE)
+```
+* The code is placed in `data-raw/` folder and kept for future usage (but omitted from package building).
+
+---
+# Documenting dataset
+* There are two tags useful for documenting a dataset: 
+* `@format` provides an overview of the dataset,
+* `@source` gives details on where the data was obtained.
+
+```r
+#' Supermarket sales data from Kaggle
+#'
+#' @format ## `supermarket`
+#' A data frame with 1,000 rows and 17 columns:
+#' \describe{
+#'   \item{Invoice.ID}{Computer generated sales slip invoice identification number}
+#'   ...
+#' }
+#' @source &lt;https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales&gt;
+"supermarket"
+```
+
+---
+# `.Rbuildignore`
+* `.Rbuildignore` is the analog of `.gitignore` for `R` package: it is where you can specify files and folders that should be ignored when building a package. 
+
+```r
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^\.github$
+^data-raw$
+```
+
+
+---
 # Vignettes
 * A vignette is a RMarkdown document that provides more insights into your package.
 * Simply call `usethis::use_vignette("my-vignette")` to create `my-vignette`.
@@ -193,19 +252,19 @@ In `R/`
 #' Compute the regression coefficients using \link[stats]{lm}.
 #' @importFrom stats lm coef
 #' @seealso \code{\link[stats]{lm}}, \code{\link[stats]{coef}}
-#' `@example /inst/examples/eg_lm.R`
+#' @example /inst/examples/eg_reg_coef.R
 #' @export
-regression_coefficient &lt;- function(x,y){
-  fit &lt;- lm(y~x)
+`%c%` &lt;- function(y, x) {
+  fit &lt;- lm(y ~ x)
   coef(fit)
 }
 ```
 
-In `/inst/examples/eg_lm.R`
+In `/inst/examples/eg_reg_coef.R`
 
 ```r
 ## linear regression
-regression_coefficient(x = cars$speed, y = cars$dist)
+cars$speed %c% cars$dist
 ```
 
 ---
@@ -214,11 +273,11 @@ If you click on `check`
 &lt;img src="images/pkg_check.png" width="606" height="505" /&gt;
 
 ---
-Now suppose there is a mistake in the code, for instance in `/inst/examples/eg_lm.R`
+Now suppose there is a mistake in the code, for instance in `/inst/examples/eg_reg_coef.R`
 
 ```r
 ## linear regression
-regression_coefficient(x = cars$speed, y = cars)
+cars$speed %c% cars
 ```
 &lt;img src="images/pkg_check2.png" width="600" height="500" /&gt;
 
@@ -244,11 +303,11 @@ For example, the file `tests/testthat/test_reg_coef.R`
 
 ```r
 test_that("regression coefficient input check",{
-  expect_error(regression_coefficient(x = cars$speed, y = cars))
+  expect_error(cars$speed %c% cars)
 })
 
 test_that("regression coefficient output",{
-  expect_type(regression_coefficient(x = cars$speed, y = cars$dist), "double")
+  expect_type(cars$speed %c% cars$dist, "double")
 })
 ```
 
@@ -265,7 +324,29 @@ and if everything passes
 &lt;img src="images/github_action.png" width="1413" /&gt;
 
 ---
-Find all the code presented here: &lt;https://github.com/ptds2021/pkgtest&gt;
+# pkgdown
+&lt;img src="images/pkgdown.png" style="height:150px; width:150px; position:absolute; top:7%; right:5%;"/&gt;
+* It is quick and automated way to create a website around your package.
+* To build your first website, this is as simple as
+
+```r
+# Run once to configure your package to use pkgdown
+usethis::use_pkgdown()
+# Run to build the website
+pkgdown::build_site()
+```
+* It is also a good idea to add a Github action:
+
+```r
+usethis::use_github_action("pkgdown")
+```
+* Checkout &lt;https://pkgdown.r-lib.org/&gt; for more details.
+
+---
+&lt;img src="images/pkgdow_pkgtest.png" width="2273" style="display: block; margin: auto;" /&gt;
+
+---
+Find all the code presented here: &lt;https://github.com/ptds2022/pkgtest&gt;
 
 ---
 # To go further

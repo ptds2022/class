@@ -4,7 +4,7 @@
     <title>Programming Tools in Data Science</title>
     <meta charset="utf-8" />
     <meta name="author" content="Samuel Orso" />
-    <meta name="date" content="2021-11-29" />
+    <meta name="date" content="2022-11-22" />
     <script src="lecture11_shiny2_files/header-attrs-2.11/header-attrs.js"></script>
     <link href="lecture11_shiny2_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script type="text/x-mathjax-config">
@@ -29,7 +29,7 @@ class: center, middle, inverse, title-slide
 # Programming Tools in Data Science
 ## Lecture #11: advanced {shiny}
 ### Samuel Orso
-### 29 November 2021
+### 22 November 2022
 
 ---
 
@@ -47,8 +47,35 @@ Modules are one of the most powerful tools for building shiny applications in a 
 
 ---
 # Motivations
-* In Shiny, functions don't fully address the problem since IDs are global: each ID must be unique!
+* In Shiny, functions don't fully address the problem since **IDs are global**: each ID must be unique!
 * Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app (if you don't recall what a namespace is, see this [link](https://adv-r.hadley.nz/environments.html#namespaces)).
+
+---
+# Namespace
+* Every environment has a parent, which varies according to the order in which packages are loaded.
+* Suppose that we load a package that includes a function `var`, would the following function behaves as intended by their programmer? 
+
+```r
+&gt; sd
+function (x, na.rm = FALSE) 
+*sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x),
+    na.rm = na.rm)) 
+&lt;bytecode: 0x561216821400&gt;
+&lt;environment: namespace:stats&gt;
+```
+
+---
+# Namespace
+* Fortunately, yes.
+* The goal of namespaces is to ensure that every package works the same way regardless of what package has been attached.
+* The package environment is the external interface to a package, it provides only function that are exported.
+* The namespace is the internal interface to a package. It controls how the function finds its variables.
+
+---
+# Namespace
+* Each namespace has an imports environment controlled by the package developer (see previous lecture).
+* The parent of the imports environment is the base namespace.
+* The parent of the base namespace if the global environment.
 
 ---
 # Simple example

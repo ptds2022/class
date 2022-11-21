@@ -1,8 +1,8 @@
 ---
 title: "Programming Tools in Data Science"
-subtitle: "Lecture #7: website with R"
+subtitle: "Lecture #12: website with R"
 author: "Samuel Orso"
-date: "15 November 2021"
+date: "6 December 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]

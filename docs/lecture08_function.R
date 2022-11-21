@@ -40,9 +40,12 @@ generic2.b <- function(x) {
   NextMethod()
 }
 
-generic2(structure(list(), class = c("b", "a2")))
+x <- structure(list(), class = c("b", "a2"))
+generic2(x)
 
-sloop::s3_dispatch(generic2(structure(list(), class = c("b", "a2"))))
+sloop::s3_dispatch(generic2(x))
+
+
 generic2.b <- function(x) {
   browser() # for inspecting
   class(x) <- "a1"
