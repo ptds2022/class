@@ -369,5 +369,7 @@ class: sydney-blue, center, middle
 * Construct a vignette.
 * Add examples on how to use the function.
 * Add tests with `testthat`.
+
+---
 * Add automated check with GitHub action.
 * Create a website with `pkgdown` and add a GitHub action to build the website.
