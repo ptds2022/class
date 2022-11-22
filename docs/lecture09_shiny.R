@@ -65,7 +65,7 @@ server <- function(input, output) {
     hist(x(), breaks = breaks(), col = 'darkgray', border = 'white', xlab=xlab(), main=title())
   })
   
-  output$tabStats <- renderTable({t(summary(x()))})
+  output$tabStats <- renderTable({xtable::xtable(t(summary(x())))})
 }
 
 # Run the application 
