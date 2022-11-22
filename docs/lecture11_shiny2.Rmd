@@ -193,6 +193,12 @@ shinyApp(ui, server)
 .bottom[See <https://mastering-shiny.org/scaling-modules.html#inputs-and-outputs> for a more complete example]
 
 ---
+# Exercise
+* (from last week) Develop a Shiny app with two tabs: the first to draw an histogram and the second to report summary statistics. Inputs are: number of cells, label for x-axis, title for the graph and an action button.
+* Using the `mtcars` dataset, allow the user to select a variable.
+* Rewrite the app using Shiny modules.
+
+---
 # Communication between modules
 * This approach becomes hard to maintain with a lot of reactive function calls.
 * An alternative is the ["stratégie du petit r"](https://engineering-shiny.org/structuring-project.html#b.-the-strat%C3%A9gie-du-petit-r): a global `reactiveValues` list is created and passed to along modules.

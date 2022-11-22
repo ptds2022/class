@@ -353,3 +353,21 @@ class: sydney-blue, center, middle
 .white[`r icons::fontawesome("github")` GitHub]
 </a>
 ]
+
+---
+# Exercise
+* Create a package from RStudio new project with the following function:
+  ```{r, eval=FALSE}
+`%c%` <- function(y, x) {
+  fit <- lm(y ~ x)
+  coef(fit)
+}
+```
+* Modify the DESCRIPTION: add an author, a license, dependencies, ...
+* Document the function using roxygen2 (verify your `Build tools` options).
+* Add the `supermaket` dataset from HW2 to the package (keep the raw data, create a `.rda` file, document the dataset).
+* Construct a vignette.
+* Add examples on how to use the function.
+* Add tests with `testthat`.
+* Add automated check with GitHub action.
+* Create a website with `pkgdown` and add a GitHub action to build the website.
