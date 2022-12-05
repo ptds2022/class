@@ -30,7 +30,7 @@ knitr::include_graphics("images/team_project.png")
 The project comprises
 1. A well formatted and complete **R-package** with a **shiny app**.
 2. A well documented and well organized **GitHub repository**.
-3. A `blogdown` **website** showcasing your work and your package.
+3. A `pkgdown` **website** showcasing your work and your package.
 
 ---
 class: sydney-blue, center, middle

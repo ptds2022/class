@@ -1,0 +1,105 @@
+---
+title: "Programming Tools in Data Science"
+subtitle: "Project"
+author: "Samuel Orso"
+date: "6 December 2022"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+---
+&nbsp;
+
+```{r,echo=F,out.height="70%",out.width="70%",fig.align='center'}
+knitr::include_graphics("images/team_project.png")
+```
+
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**.
+2. A well documented and well organized **GitHub repository**.
+3. A `pkgdown` **website** showcasing your work and your package.
+
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**:
+  + Functions are documented with examples and tested.
+  + The app can be called from one of the package function.
+  + Data sets are placed in `data/` and wrangling steps in `data-raw/`.
+  + The package passes all the checks (both locally and on GitHub).
+  + There is at least one vignette showcasing the package/app.
+  + The package can seamlessly be installed from the GitHub repo.
+2. A well documented and well organized **GitHub repository**.
+3. A `pkgdown` **website** showcasing your work and your package.
+
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**.
+2. A well documented and well organized **GitHub repository**:
+  + The repo must be on the organization `ptds2022`.
+  + Edit the `README.md` to make the package as clear as possible.
+  + Comprehensive commit messages and clear issues (closed once done).
+  + Up-to-date GitHub projects that demonstrate your current organization for the project: TODOs, tasks in progress of resolution, tasks that have been completed.
+  + Clean repo: do not add unnecessary files to the repo.
+  + Put your presentation in a dedicated folder.
+3. A `pkgdown` **website** showcasing your work and your package.
+
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**.
+2. A well documented and well organized **GitHub repository**.
+3. A `pkgdown` **website** showcasing your work and your package:
+  + Motivate the package and how to use it (think of using vignettes).
+  + Build automatically the website using GitHub action.
+
+---
+class: sydney-blue, center, middle
+
+# Deadline is the 20th of December!
+
+---
+# Presentation
+The 15 minutes presentations are scheduled as follows:
+```{r, eval=F}
+set.seed(328409)
+tibble::tibble(
+  group = LETTERS[sample.int(6,6)],
+  time_start = seq(
+    from=as.POSIXct("2022-12-20 09:00:00","%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    to=as.POSIXct("2022-12-20 11:30:00", "%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    by="30 min"
+  ),
+  time_end = seq(
+    from=as.POSIXct("2022-12-20 09:30:00","%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    to=as.POSIXct("2022-12-20 12:00:00", "%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    by="30 min"
+  )
+)
+```
+Please assist to all presentations.
+
+---
+class: sydney-blue, center, middle
+
+# Question ?
+
+.pull-down[
+<a href="https://ptds.samorso.ch/">
+.white[`r icons::fontawesome("file")` website]
+</a>
+
+<a href="https://github.com/ptds2021/">
+.white[`r icons::fontawesome("github")` GitHub]
+</a>
+]

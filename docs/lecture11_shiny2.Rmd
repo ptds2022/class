@@ -2,7 +2,7 @@
 title: "Programming Tools in Data Science"
 subtitle: "Lecture #11: advanced {shiny}"
 author: "Samuel Orso"
-date: "22 November 2022"
+date: "6 December 2022"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -19,7 +19,6 @@ output:
       ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
       navigation:
         scroll: false # disable slide transitions by scrolling
-
 ---
 # Modularizing Shiny
 <blockquote>
@@ -193,12 +192,6 @@ shinyApp(ui, server)
 .bottom[See <https://mastering-shiny.org/scaling-modules.html#inputs-and-outputs> for a more complete example]
 
 ---
-# Exercise
-* (from last week) Develop a Shiny app with two tabs: the first to draw an histogram and the second to report summary statistics. Inputs are: number of cells, label for x-axis, title for the graph and an action button.
-* Using the `mtcars` dataset, allow the user to select a variable.
-* Rewrite the app using Shiny modules.
-
----
 # Communication between modules
 * This approach becomes hard to maintain with a lot of reactive function calls.
 * An alternative is the ["stratégie du petit r"](https://engineering-shiny.org/structuring-project.html#b.-the-strat%C3%A9gie-du-petit-r): a global `reactiveValues` list is created and passed to along modules.
@@ -208,7 +201,31 @@ shinyApp(ui, server)
 ---
 # Structuring your application
 * It is highly recommended to structure an application as a package.
-* Benefits are multiple: structure, documentation, tests, deployment, workflow, check, ...
+* Benefits are multiple: structure, documentation, tests, deployment, work flow, check, ...
+* The idea is similar to a `R` package: `R` functions and modules are documented, tested and go into `R/`.
+* The app is wrapped into a function, for example:
+```{r, eval=FALSE}
+# Run the application
+#' @title App for bacteria mobility
+#' @importFrom shiny shinyApp
+#' @export
+run_app <- function(...){
+  shinyApp(ui = ui, server = server, ...)
+}
+```
+* See <https://github.com/ptds2022/bacteria> for a minimal example.
+
+---
+# Exercise
+* (from last week) Develop a Shiny app with two tabs: the first to draw an histogram and the second to report summary statistics. Inputs are: number of cells, label for x-axis, title for the graph and an action button.
+* Using the `mtcars` dataset, allow the user to select a variable.
+* Rewrite the app using Shiny modules.
+* Structure the app into a package.
+
+---
+class: sydney-blue, center, middle
+
+# To go further
 
 ---
 # `{golem}`

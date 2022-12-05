@@ -4,7 +4,7 @@
     <title>Programming Tools in Data Science</title>
     <meta charset="utf-8" />
     <meta name="author" content="Samuel Orso" />
-    <meta name="date" content="2022-11-22" />
+    <meta name="date" content="2022-12-06" />
     <script src="lecture11_shiny2_files/header-attrs-2.11/header-attrs.js"></script>
     <link href="lecture11_shiny2_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script type="text/x-mathjax-config">
@@ -29,7 +29,7 @@ class: center, middle, inverse, title-slide
 # Programming Tools in Data Science
 ## Lecture #11: advanced {shiny}
 ### Samuel Orso
-### 22 November 2022
+### 6 December 2022
 
 ---
 
@@ -48,7 +48,7 @@ Modules are one of the most powerful tools for building shiny applications in a 
 ---
 # Motivations
 * In Shiny, functions don't fully address the problem since **IDs are global**: each ID must be unique!
-* Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app (if you don't recall what a namespace is, see this [link](https://adv-r.hadley.nz/environments.html#namespaces)).
+* Shiny **modules** create small namespaces where IDs can be safely defined  without conflicting with other IDs in the app.
 
 ---
 # Namespace
@@ -156,7 +156,7 @@ shinyApp(ui, server)
 * The application looks much simpler, and you could imagine adding as many modules as you like. 
 
 ---
-# Namespacing
+# Namespacing in Shiny
 * For UI module, the namespacing is explicit with calls to `ns &lt;- NS(id)` and `ns(inputId)`.
 * For server module, the namespacing is implicit. Shiny automatically namespaces input and output following the same convention as UI module.
 * In the following example, the `input$bins` from the `sliderInput` is never used, even though it "appears" in the server module.
@@ -221,7 +221,32 @@ shinyApp(ui, server)
 ---
 # Structuring your application
 * It is highly recommended to structure an application as a package.
-* Benefits are multiple: structure, documentation, tests, deployment, workflow, check, ...
+* Benefits are multiple: structure, documentation, tests, deployment, work flow, check, ...
+* The idea is similar to a `R` package: `R` functions and modules are documented, tested and go into `R/`.
+* The app is wrapped into a function, for example:
+
+```r
+# Run the application
+#' @title App for bacteria mobility
+#' @importFrom shiny shinyApp
+#' @export
+run_app &lt;- function(...){
+  shinyApp(ui = ui, server = server, ...)
+}
+```
+* See &lt;https://github.com/ptds2022/bacteria&gt; for a minimal example.
+
+---
+# Exercise
+* (from last week) Develop a Shiny app with two tabs: the first to draw an histogram and the second to report summary statistics. Inputs are: number of cells, label for x-axis, title for the graph and an action button.
+* Using the `mtcars` dataset, allow the user to select a variable.
+* Rewrite the app using Shiny modules.
+* Structure the app into a package.
+
+---
+class: sydney-blue, center, middle
+
+# To go further
 
 ---
 # `{golem}`

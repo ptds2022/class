@@ -4,9 +4,9 @@
     <title>Programming Tools in Data Science</title>
     <meta charset="utf-8" />
     <meta name="author" content="Samuel Orso" />
-    <meta name="date" content="2022-10-18" />
-    <script src="lecture07_project_files/header-attrs-2.11/header-attrs.js"></script>
-    <link href="lecture07_project_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <meta name="date" content="2022-12-06" />
+    <script src="lecture12_project_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lecture12_project_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         TeX: { equationNumbers: { autoNumber: "AMS" } },
@@ -27,9 +27,9 @@
 class: center, middle, inverse, title-slide
 
 # Programming Tools in Data Science
-## Project proposal
+## Project
 ### Samuel Orso
-### 18 October 2022
+### 6 December 2022
 
 ---
 
@@ -44,86 +44,63 @@ The project comprises
 3. A `pkgdown` **website** showcasing your work and your package.
 
 ---
-class: sydney-blue, center, middle
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**:
+  + Functions are documented with examples and tested.
+  + The app can be called from one of the package function.
+  + Data sets are placed in `data/` and wrangling steps in `data-raw/`.
+  + The package passes all the checks (both locally and on GitHub).
+  + There is at least one vignette showcasing the package/app.
+  + The package can seamlessly be installed from the GitHub repo.
+2. A well documented and well organized **GitHub repository**.
+3. A `pkgdown` **website** showcasing your work and your package.
 
-# 50% of your grade!
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**.
+2. A well documented and well organized **GitHub repository**:
+  + The repo must be on the organization `ptds2022`.
+  + Edit the `README.md` to make the package as clear as possible.
+  + Comprehensive commit messages and clear issues (closed once done).
+  + Up-to-date GitHub projects that demonstrate your current organization for the project: TODOs, tasks in progress of resolution, tasks that have been completed.
+  + Clean repo: do not add unnecessary files to the repo.
+  + Put your presentation in a dedicated folder.
+3. A `pkgdown` **website** showcasing your work and your package.
+
+---
+The project comprises
+1. A well formatted and complete **R-package** with a **shiny app**.
+2. A well documented and well organized **GitHub repository**.
+3. A `pkgdown` **website** showcasing your work and your package:
+  + Motivate the package and how to use it (think of using vignettes).
+  + Build automatically the website using GitHub action.
 
 ---
 class: sydney-blue, center, middle
 
-# Examples of 2021
+# Deadline is the 20th of December!
 
 ---
-# HEC Time Table
-&lt;img src="images/timetable.png" width="90%" height="90%" style="display: block; margin: auto;" /&gt;
+# Presentation
+The 15 minutes presentations are scheduled as follows:
 
----
-# Industrial production controlling mechanism
-&lt;img src="images/nestle.png" width="90%" height="90%" style="display: block; margin: auto;" /&gt;
-
----
-class: sydney-blue, center, middle
-
-# Examples of 2020
-
----
-# Nutrition calculator
-&lt;img src="images/mcdonald.png" width="90%" height="90%" style="display: block; margin: auto;" /&gt;
-
----
-# Movie recommandation
-&lt;img src="images/movie.png" width="90%" height="90%" style="display: block; margin: auto;" /&gt;
-
----
-# Beer recommandation
-&lt;img src="images/beer.png" width="90%" height="90%" style="display: block; margin: auto;" /&gt;
-
----
-class: sydney-blue, center, middle
-
-# Further examples
-
----
-# Covid dashboard 
-
-&lt;iframe src="https://infocovid.smc.unige.ch/" width="100%" height="400px" data-external="1"&gt;&lt;/iframe&gt;
-
-.right[&lt;https://infocovid.smc.unige.ch/&gt;]
-
----
-# Hexmaker
-&lt;iframe src="https://connect.thinkr.fr/hexmake/" width="100%" height="400px" data-external="1"&gt;&lt;/iframe&gt;
-
-.right[&lt;https://connect.thinkr.fr/hexmake/&gt;]
-
----
-Source of inspiration:
-* &lt;https://www.r-bloggers.com/&gt;
-* &lt;https://shiny.rstudio.com/gallery/#user-showcase&gt;
-* &lt;https://www.rstudio.com/blog/winners-of-the-3rd-annual-shiny-contest/&gt;
-* &lt;https://blog.rstudio.com/2019/04/05/first-shiny-contest-winners/&gt;
-* &lt;https://blog.rstudio.com/2020/07/13/winners-of-the-2nd-shiny-contest/&gt;
-* &lt;https://attalitech.com/#portfolio&gt;
-* &lt;https://connect.thinkr.fr/connect/&gt;
-
----
-# Proposal
-You must submit a project proposal for reviewing by **2022-11-07 11:59pm**. The proposal must comprise:
-1. **Goals and impacts**: describe briefly the rationale of your project, you overall objectives and potential impacts.   
-2. **Plan**: detail your approach and your specific objectives:
-  + Explain the methods (`R` packages, ...) to be used and the methods to be developed. Give potential
-  + Explain existing sources of inspirations (other classes, stackoverflow, R-blogger, blogs, ...) and the potential overlaps with your project.
-  + Explain your data collection strategy, the risks as well as possible alternative strategies.
-
----
-3. **Timeline and milestones**: describe the time line of your project and indicate key intermediary goals in a Gantt chart (see [this package](https://github.com/giocomai/ganttrify) for example).
-4. **Management plan**: explain how you plan to collaborate (weekly meeting on Zoom, ...) and indicate responsibilities (each member of the team should be at least responsible for one part of the project).
-
----
-Gantt chart example
-
-&lt;img src="images/gantt.png" width="1933" /&gt;
-
+```r
+set.seed(328409)
+tibble::tibble(
+  group = LETTERS[sample.int(6,6)],
+  time_start = seq(
+    from=as.POSIXct("2022-12-20 09:00:00","%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    to=as.POSIXct("2022-12-20 11:30:00", "%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    by="30 min"
+  ),
+  time_end = seq(
+    from=as.POSIXct("2022-12-20 09:30:00","%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    to=as.POSIXct("2022-12-20 12:00:00", "%Y-%m-%d %H:%M", tz="Lausanne/Switzerland"),
+    by="30 min"
+  )
+)
+```
+Please assist to all presentations.
 
 ---
 class: sydney-blue, center, middle
