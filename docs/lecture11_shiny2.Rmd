@@ -303,7 +303,6 @@ knitr::include_graphics("images/snippet_1.png")
 knitr::include_graphics("images/snippet_2.png")
 ```
 
-
 ---
 # Save development time with `{shinysnippets}`
 * You can install `{shinysnippets}` from GitHub:
